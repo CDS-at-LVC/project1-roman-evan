@@ -1,0 +1,9 @@
+{
+  "name" : "grading-system",
+  "version" : "0.0.1",
+  "dependencies" : [ {
+    "name" : "nlohmann-json"
+  }, {
+    "name" : "wxwidgets"
+  } ]
+}
