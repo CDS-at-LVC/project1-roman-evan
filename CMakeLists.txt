@@ -7,3 +7,6 @@ add_executable(project1_roman_evan main.cpp)
 find_package(nlohmann_json CONFIG REQUIRED)
 target_link_libraries(project1_roman_evan PRIVATE nlohmann_json::nlohmann_json)
 
+find_package(wxwidgets CONFIG REQUIRED)
+target_link_libraries(project1_roman_evan PRIVATE wx::core wx::base)
+
