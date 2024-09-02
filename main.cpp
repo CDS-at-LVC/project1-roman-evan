@@ -1,4 +1,8 @@
 #include <wx/wx.h>
+#include <nlohmann/json.hpp>
+#include <iostream>
+#include <fstream>
+#include <streambuf>
 
 // Define the login window class
 class LoginFrame : public wxFrame
@@ -35,6 +39,22 @@ private:
         wxString username = userTextCtrl->GetValue();
         wxString password = passTextCtrl->GetValue();
 
+        std::ifstream input{ "users-schema.json" };
+
+        std::string fileText((std::istreambuf_iterator<char>(input)),
+            std::istreambuf_iterator<char>());
+
+        using json = nlohmann::json;
+
+        json j = json::parse(fileText);
+
+        for (auto start = j.begin(); start != j.end(); start++) {
+            if (username.IsSameAs(start->at("username").get<std::string>()) && password.IsSameAs(start->at("password").get<std::string>())) {
+                wxMessageBox("Login Successful", "Info", wxOK | wxICON_INFORMATION);
+                return;
+            }
+        }
+
         if (username.IsEmpty() || password.IsEmpty())
         {
             wxMessageBox("Please enter both username and password", "Error", wxOK | wxICON_ERROR);
@@ -42,7 +62,7 @@ private:
         }
 
         // Implement your login logic here
-        wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
+        
     }
 
     // Event handler for cancel button

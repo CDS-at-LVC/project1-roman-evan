@@ -138,7 +138,10 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assignment-schema.json" />
     <None Include="packages.config" />
+    <None Include="submissions-schema.json" />
+    <None Include="users-schema.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

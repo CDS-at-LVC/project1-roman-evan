@@ -34,5 +34,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="assignment-schema.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="submissions-schema.json">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="users-schema.json">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
