@@ -39,6 +39,8 @@ private:
         wxString username = userTextCtrl->GetValue();
         wxString password = passTextCtrl->GetValue();
 
+        auto pass = password.ToStdString();
+
         std::ifstream input{ "users-schema.json" };
 
         std::string fileText((std::istreambuf_iterator<char>(input)),
@@ -51,6 +53,7 @@ private:
         for (auto start = j.begin(); start != j.end(); start++) {
             if (username.IsSameAs(start->at("username").get<std::string>()) && password.IsSameAs(start->at("password").get<std::string>())) {
                 wxMessageBox("Login Successful", "Info", wxOK | wxICON_INFORMATION);
+                this->Show(false);
                 return;
             }
         }
