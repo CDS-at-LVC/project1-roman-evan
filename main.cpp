@@ -1,91 +1,91 @@
 #include <wx/wx.h>
-#include <nlohmann/json.hpp>
+#include <wx/filepicker.h>
+#include <wx/process.h>
+#include <cstdio>
 #include <iostream>
-#include <fstream>
-#include <streambuf>
 
-// Define the login window class
-class LoginFrame : public wxFrame
+class MyFrame : public wxFrame
 {
 public:
-    LoginFrame(const wxString& title)
-        : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(300, 200))
+    MyFrame() : wxFrame(nullptr, wxID_ANY, "File Picker and Compiler Example")
     {
-        // Create a panel inside the frame
-        wxPanel* panel = new wxPanel(this, wxID_ANY);
+        wxPanel* panel = new wxPanel(this);
 
-        // Create controls
-        wxStaticText* userLabel = new wxStaticText(panel, wxID_ANY, wxT("Username:"), wxPoint(20, 20));
-        userTextCtrl = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxPoint(100, 20), wxSize(150, 25));
+        // Create the file picker control for .cpp files
+        m_filePicker = new wxFilePickerCtrl(panel, wxID_ANY, "", "Choose a .cpp file", "C++ files (*.cpp)|*.cpp");
 
-        wxStaticText* passLabel = new wxStaticText(panel, wxID_ANY, wxT("Password:"), wxPoint(20, 60));
-        passTextCtrl = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxPoint(100, 60), wxSize(150, 25), wxTE_PASSWORD);
+        // Create a text control to display the selected file path
+        m_textCtrl = new wxTextCtrl(panel, wxID_ANY, "");
 
-        wxButton* loginBtn = new wxButton(panel, wxID_ANY, wxT("Login"), wxPoint(60, 110));
-        wxButton* cancelBtn = new wxButton(panel, wxID_ANY, wxT("Cancel"), wxPoint(150, 110));
+        // Create the "Compile and Run" button
+        m_compileButton = new wxButton(panel, wxID_ANY, "Compile and Run");
 
-        // Bind events to buttons
-        loginBtn->Bind(wxEVT_BUTTON, &LoginFrame::OnLogin, this);
-        cancelBtn->Bind(wxEVT_BUTTON, &LoginFrame::OnCancel, this);
+        // Bind the events to handler functions
+        Bind(wxEVT_FILEPICKER_CHANGED, &MyFrame::OnFilePicked, this);
+        Bind(wxEVT_BUTTON, &MyFrame::OnCompileAndRun, this, m_compileButton->GetId());
+
+        // Add the widgets to the sizer
+        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        sizer->Add(m_filePicker, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(m_textCtrl, 0, wxEXPAND | wxALL, 5);
+        sizer->Add(m_compileButton, 0, wxALL | wxCENTER, 5);
+        panel->SetSizer(sizer);
     }
 
 private:
-    wxTextCtrl* userTextCtrl; // To hold username input
-    wxTextCtrl* passTextCtrl; // To hold password input
-
-    // Event handler for login button
-    void OnLogin(wxCommandEvent& event)
+    void OnFilePicked(wxFileDirPickerEvent& event)
     {
-        wxString username = userTextCtrl->GetValue();
-        wxString password = passTextCtrl->GetValue();
+        // Get the selected file path and display it in the text control
+        wxString filePath = m_filePicker->GetPath();
+        m_textCtrl->SetValue(filePath);
+    }
 
-        auto pass = password.ToStdString();
+    void OnCompileAndRun(wxCommandEvent& event)
+    {
+        wxString filePath = m_textCtrl->GetValue();
 
-        std::ifstream input{ "users-schema.json" };
-
-        std::string fileText((std::istreambuf_iterator<char>(input)),
-            std::istreambuf_iterator<char>());
-
-        using json = nlohmann::json;
-
-        json j = json::parse(fileText);
-
-        for (auto start = j.begin(); start != j.end(); start++) {
-            if (username.IsSameAs(start->at("username").get<std::string>()) && password.IsSameAs(start->at("password").get<std::string>())) {
-                wxMessageBox("Login Successful", "Info", wxOK | wxICON_INFORMATION);
-                this->Show(false);
-                return;
-            }
-        }
-
-        if (username.IsEmpty() || password.IsEmpty())
+        if (filePath.IsEmpty())
         {
-            wxMessageBox("Please enter both username and password", "Error", wxOK | wxICON_ERROR);
+            wxMessageBox("No file selected!", "Error", wxOK | wxICON_ERROR);
             return;
         }
 
-        // Implement your login logic here
-        
+        // Compile the selected .cpp file
+        wxString outputFile = "output.exe";
+        wxString command = "g++ \"" + filePath + "\" -o " + outputFile;
+
+        int compileResult = wxExecute(command, wxEXEC_SYNC);
+        if (compileResult != 0)
+        {
+            wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
+            return;
+        }
+
+        // Run the compiled program
+        wxExecute(outputFile, wxEXEC_SYNC);
+        int status = remove(outputFile.ToStdString().c_str());
+
+        if (status != 0)
+        {
+            wxMessageBox(outputFile.ToStdString().c_str(), "Error", wxOK | wxICON_ERROR);
+            return;
+        }
     }
 
-    // Event handler for cancel button
-    void OnCancel(wxCommandEvent& event)
-    {
-        Close(true);  // Close the login window
-    }
+    wxFilePickerCtrl* m_filePicker;
+    wxTextCtrl* m_textCtrl;
+    wxButton* m_compileButton;
 };
 
-// Define the main application class
 class MyApp : public wxApp
 {
 public:
     virtual bool OnInit()
     {
-        LoginFrame* loginFrame = new LoginFrame(wxT("Login"));
-        loginFrame->Show(true);
+        MyFrame* frame = new MyFrame();
+        frame->Show(true);
         return true;
     }
 };
 
-// Implement the application
 wxIMPLEMENT_APP(MyApp);
