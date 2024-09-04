@@ -3,6 +3,7 @@
 #include <wx/process.h>
 #include <cstdio>
 #include <iostream>
+#include <wx/txtstrm.h>
 
 class MyFrame : public wxFrame
 {
@@ -52,24 +53,47 @@ private:
 
         // Compile the selected .cpp file
         wxString outputFile = "output.exe";
-        wxString command = "g++ \"" + filePath + "\" -o " + outputFile;
+        wxString compileCommand = "g++ \"" + filePath + "\" -o " + outputFile;
 
-        int compileResult = wxExecute(command, wxEXEC_SYNC);
+        int compileResult = wxExecute(compileCommand, wxEXEC_SYNC);
         if (compileResult != 0)
         {
             wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
             return;
         }
 
-        // Run the compiled program
-        wxExecute(outputFile, wxEXEC_SYNC);
-        int status = remove(outputFile.ToStdString().c_str());
+        // Set up a wxProcess for capturing output
+        wxProcess process;
+        process.Redirect();  // Redirect the process output (stdout and stderr)
 
-        if (status != 0)
+        // Run the compiled program synchronously and capture its output
+        int executionResult = wxExecute(outputFile, wxEXEC_SYNC, &process);
+
+        if (executionResult == -1)
         {
-            wxMessageBox(outputFile.ToStdString().c_str(), "Error", wxOK | wxICON_ERROR);
+            wxMessageBox("Failed to execute program!", "Error", wxOK | wxICON_ERROR);
             return;
         }
+
+        // Capture the output
+        wxInputStream* inputStream = process.GetInputStream();
+        if (inputStream && inputStream->IsOk())
+        {
+            wxTextInputStream text(*inputStream);
+            wxString output;
+
+            // Read the output line by line
+            while (!inputStream->Eof())
+            {
+                output += text.ReadLine() + "\n";
+            }
+
+            // Display the captured output in a message box or text control
+            wxMessageBox(output, "Program Output", wxOK | wxICON_INFORMATION);
+        }
+
+        // Delete the compiled executable
+        remove(outputFile.ToStdString().c_str());
     }
 
     wxFilePickerCtrl* m_filePicker;
