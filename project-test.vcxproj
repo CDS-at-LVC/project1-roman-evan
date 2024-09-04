@@ -129,6 +129,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="AdminFrame.cpp" />
+    <ClCompile Include="LoginFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc" />
@@ -139,6 +141,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AdminFrame.h" />
+    <ClInclude Include="LoginFrame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
