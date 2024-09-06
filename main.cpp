@@ -3,6 +3,7 @@
 #include <wx/process.h>
 #include <cstdio>
 #include <iostream>
+#include <fstream>
 #include <wx/txtstrm.h>
 
 class MyFrame : public wxFrame
@@ -82,14 +83,31 @@ private:
         wxInputStream* inputStream = process.GetInputStream();
         if (inputStream && inputStream->IsOk())
         {
+            std::ifstream outputFile{ "output.txt" };
+            std::string outputLine, inputLine;
             wxTextInputStream text(*inputStream);
             wxString output;
+            bool flag = true;
 
             // Read the output line by line
-            while (!inputStream->Eof())
+            while (!inputStream->Eof() && getline(outputFile,outputLine))
             {
-                output += text.ReadLine() + "\n";
+                inputLine = text.ReadLine();
+                if (inputLine != outputLine) flag = false;
+                output +=  inputLine + " " + outputLine + "\n";
             }
+
+            //if (!inputStream->Eof() || getline(outputFile, outputLine)) flag = false;
+
+            while (!inputStream->Eof()) {
+                if (text.ReadLine().Trim(true).Trim(false).Length() > 0) flag = false;
+            }
+
+            while (getline(outputFile, outputLine)) {
+                if (wxString(outputLine).Trim(true).Trim(false).Length() > 0) flag = false;
+            }
+
+            output += flag ? "same\n" : "different\n";
 
             // Display the captured output in a message box or text control
             wxMessageBox(output, "Program Output", wxOK | wxICON_INFORMATION);
