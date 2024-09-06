@@ -131,6 +131,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AdminFrame.cpp" />
     <ClCompile Include="LoginFrame.cpp" />
+    <ClCompile Include="StudentFrame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc" />
@@ -144,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdminFrame.h" />
+    <ClInclude Include="StudentFrame.h" />
     <ClInclude Include="LoginFrame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
