@@ -66,6 +66,8 @@ private:
         wxProcess process;
         process.Redirect();  // Redirect the process output (stdout and stderr)
 
+        outputFile = "powershell -Command \Get-Content ./input.txt | ./" + outputFile;
+
         // Run the compiled program synchronously and capture its output
         int executionResult = wxExecute(outputFile, wxEXEC_SYNC, &process);
 
@@ -74,6 +76,7 @@ private:
             wxMessageBox("Failed to execute program!", "Error", wxOK | wxICON_ERROR);
             return;
         }
+
 
         // Capture the output
         wxInputStream* inputStream = process.GetInputStream();

@@ -1,7 +1,18 @@
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 int main() {
-	std::cout << "Hello world" << std::endl;
+
+	string a, b, c;
+	cin >> a;
+	cin >> b;
+	cin >> c;
+
+	cout << a << endl;
+	cout << b << endl;
+	cout << c << endl;
 
 	return 0;
 }
