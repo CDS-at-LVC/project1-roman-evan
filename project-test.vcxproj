@@ -132,25 +132,17 @@
     <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="project-test.rc" />
+    <ResourceCompile Include="project1-roman-evan.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="project-test.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assignment-schema.json" />
     <None Include="packages.config" />
-    <None Include="submissions-schema.json" />
-    <None Include="users-schema.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="User.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="input.txt" />
-    <Text Include="output.txt" />
+    <Image Include="new-icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

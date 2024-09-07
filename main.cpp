@@ -1,136 +1,162 @@
 #include <wx/wx.h>
 #include <wx/filepicker.h>
 #include <wx/process.h>
+#include <wx/wfstream.h> 
 #include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <wx/txtstrm.h>
+#include <sstream>
+#include <algorithm>
 
 class MyFrame : public wxFrame
 {
 public:
-    MyFrame() : wxFrame(nullptr, wxID_ANY, "File Picker and Compiler Example")
-    {
-        wxPanel* panel = new wxPanel(this);
+	MyFrame() : wxFrame(nullptr, wxID_ANY, "File Picker and Compiler Example")
+	{
+		wxPanel* panel = new wxPanel(this);
 
-        // Create the file picker control for .cpp files
-        m_filePicker = new wxFilePickerCtrl(panel, wxID_ANY, "", "Choose a .cpp file", "C++ files (*.cpp)|*.cpp");
+		// Create the file picker control for .cpp files
+		m_filePicker = new wxFilePickerCtrl(panel, wxID_ANY, "", "Choose a .cpp file", "C++ files (*.cpp)|*.cpp");
 
-        // Create a text control to display the selected file path
-        m_textCtrl = new wxTextCtrl(panel, wxID_ANY, "");
+		// Create the "Compile and Run" button
+		m_compileButton = new wxButton(panel, wxID_ANY, "Compile and Run");
 
-        // Create the "Compile and Run" button
-        m_compileButton = new wxButton(panel, wxID_ANY, "Compile and Run");
+		// Bind the events to handler functions
+		Bind(wxEVT_FILEPICKER_CHANGED, &MyFrame::OnFilePicked, this);
+		Bind(wxEVT_BUTTON, &MyFrame::OnCompileAndRun, this, m_compileButton->GetId());
 
-        // Bind the events to handler functions
-        Bind(wxEVT_FILEPICKER_CHANGED, &MyFrame::OnFilePicked, this);
-        Bind(wxEVT_BUTTON, &MyFrame::OnCompileAndRun, this, m_compileButton->GetId());
-
-        // Add the widgets to the sizer
-        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-        sizer->Add(m_filePicker, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(m_textCtrl, 0, wxEXPAND | wxALL, 5);
-        sizer->Add(m_compileButton, 0, wxALL | wxCENTER, 5);
-        panel->SetSizer(sizer);
-    }
+		// Add the widgets to the sizer
+		wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+		sizer->Add(m_filePicker, 0, wxEXPAND | wxALL, 5);
+		sizer->Add(m_compileButton, 0, wxALL | wxCENTER, 5);
+		panel->SetSizer(sizer);
+	}
 
 private:
-    void OnFilePicked(wxFileDirPickerEvent& event)
-    {
-        // Get the selected file path and display it in the text control
-        wxString filePath = m_filePicker->GetPath();
-        m_textCtrl->SetValue(filePath);
-    }
+	wxString ReadInputStream(wxInputStream* inputStream)
+	{
+		wxString content;
+		char buffer[4096];  // Buffer size
+		while (!inputStream->Eof())
+		{
+			inputStream->Read(buffer, sizeof(buffer) - 1);
+			size_t bytesRead = inputStream->LastRead();
+			buffer[bytesRead] = '\0';
+			content += wxString(buffer, wxConvUTF8);
+		}
+		return content;
+	}
 
-    void OnCompileAndRun(wxCommandEvent& event)
-    {
-        wxString filePath = m_textCtrl->GetValue();
+	void OnFilePicked(wxFileDirPickerEvent& event) {
 
-        if (filePath.IsEmpty())
-        {
-            wxMessageBox("No file selected!", "Error", wxOK | wxICON_ERROR);
-            return;
-        }
+	}
 
-        // Compile the selected .cpp file
-        wxString outputFile = "output.exe";
-        wxString compileCommand = "g++ \"" + filePath + "\" -o " + outputFile;
+	bool TestExecutable(const std::string& execName,
+		const std::string& inputPath,
+		const std::string& outputPath)
+	{
+		wxProcess process;
+		process.Redirect();
 
-        int compileResult = wxExecute(compileCommand, wxEXEC_SYNC);
-        if (compileResult != 0)
-        {
-            wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
-            return;
-        }
+		wxString command = "powershell -Command Get-Content ./" + inputPath + " | ./" + execName;
+		int executionResult = wxExecute(command, wxEXEC_SYNC, &process);
+		if (executionResult == -1)
+		{
+			wxMessageBox("Failed to execute program!", "Error", wxOK | wxICON_ERROR);
+			return false;
+		}
 
-        // Set up a wxProcess for capturing output
-        wxProcess process;
-        process.Redirect();  // Redirect the process output (stdout and stderr)
+		wxInputStream* actualOutputStream = process.GetInputStream();
+		wxFileInputStream outputFileStream(outputPath);
+		wxInputStream* expectedOutputStream = &outputFileStream;
+		if (actualOutputStream && actualOutputStream->IsOk() && expectedOutputStream && expectedOutputStream->IsOk())
+		{
+			wxTextInputStream inputText(*actualOutputStream);
+			wxTextInputStream outputText(*expectedOutputStream);
+			wxString output, inputTxt, outputTxt;
+			bool flag = true;
 
-        outputFile = "powershell -Command \Get-Content ./input.txt | ./" + outputFile;
+			// Read the output line by line and compare with input
+			while (!expectedOutputStream->Eof() && !actualOutputStream->Eof()) {
+				inputTxt = inputText.ReadLine();
+				outputTxt = outputText.ReadLine();
+				output += "'" + inputTxt + "' : '" + outputTxt + "'\n";
+				if (inputTxt != outputTxt) {
+					flag = false;
+					wxLogMessage("Comparing input: '%s' with output: '%s'", inputTxt, outputTxt);
+				}
+			}
 
-        // Run the compiled program synchronously and capture its output
-        int executionResult = wxExecute(outputFile, wxEXEC_SYNC, &process);
+			while (!expectedOutputStream->Eof()) {
+				outputTxt = outputText.ReadLine().Trim(false).Trim(true);
+				if (!outputTxt.IsEmpty()) {
+					flag = false;
+					wxLogMessage("Expected: '%s' but file ended.", outputTxt);
+				}
+			}
 
-        if (executionResult == -1)
-        {
-            wxMessageBox("Failed to execute program!", "Error", wxOK | wxICON_ERROR);
-            return;
-        }
+			while (!actualOutputStream->Eof()) {
+				inputTxt = inputText.ReadLine().Trim(false).Trim(true);
+				if (!inputTxt.IsEmpty()) {
+					flag = false;
+					wxLogMessage("Unexpected: '%s' when output ended.", inputTxt);
+				}
+			}
+
+			return flag;
+		}
 
 
-        // Capture the output
-        wxInputStream* inputStream = process.GetInputStream();
-        if (inputStream && inputStream->IsOk())
-        {
-            std::ifstream outputFile{ "output.txt" };
-            std::string outputLine, inputLine;
-            wxTextInputStream text(*inputStream);
-            wxString output;
-            bool flag = true;
+	}
 
-            // Read the output line by line
-            while (!inputStream->Eof() && getline(outputFile,outputLine))
-            {
-                inputLine = text.ReadLine();
-                if (inputLine != outputLine) flag = false;
-                output +=  inputLine + " " + outputLine + "\n";
-            }
+	void OnCompileAndRun(wxCommandEvent& event)
+	{
+		wxString filePath = m_filePicker->GetPath();
 
-            //if (!inputStream->Eof() || getline(outputFile, outputLine)) flag = false;
+		if (filePath.IsEmpty())
+		{
+			wxMessageBox("No file selected!", "Error", wxOK | wxICON_ERROR);
+			return;
+		}
 
-            while (!inputStream->Eof()) {
-                if (text.ReadLine().Trim(true).Trim(false).Length() > 0) flag = false;
-            }
+		// Compile the selected .cpp file
+		wxString outputFile = "output.exe";
+		wxString compileCommand = "g++ \"" + filePath + "\" -o " + outputFile;
 
-            while (getline(outputFile, outputLine)) {
-                if (wxString(outputLine).Trim(true).Trim(false).Length() > 0) flag = false;
-            }
+		int compileResult = wxExecute(compileCommand, wxEXEC_SYNC);
+		if (compileResult != 0)
+		{
+			wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
+			return;
+		}
 
-            output += flag ? "same\n" : "different\n";
+		// Set up a wxProcess for capturing output
+		wxProcess process;
+		process.Redirect();  // Redirect the process output (stdout and stderr)
 
-            // Display the captured output in a message box or text control
-            wxMessageBox(output, "Program Output", wxOK | wxICON_INFORMATION);
-        }
+		//maybe separate compilation from actual testing
 
-        // Delete the compiled executable
-        remove(outputFile.ToStdString().c_str());
-    }
+		//loop through assignment tests and run this for each
+		TestExecutable(outputFile, "inputs/input1.txt", "outputs/output1.txt");
 
-    wxFilePickerCtrl* m_filePicker;
-    wxTextCtrl* m_textCtrl;
-    wxButton* m_compileButton;
+		// Delete the compiled executable
+		remove(outputFile.ToStdString().c_str());
+	}
+
+	wxFilePickerCtrl* m_filePicker;
+	wxButton* m_compileButton;
 };
 
 class MyApp : public wxApp
 {
 public:
-    virtual bool OnInit()
-    {
-        MyFrame* frame = new MyFrame();
-        frame->Show(true);
-        return true;
-    }
+	virtual bool OnInit()
+	{
+		MyFrame* frame = new MyFrame();
+		frame->Show(true);
+		return true;
+	}
 };
 
 wxIMPLEMENT_APP(MyApp);
