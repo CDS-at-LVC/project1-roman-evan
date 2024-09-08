@@ -1,0 +1,12 @@
+[
+  {
+    "id": "print-123",
+    "name": "assignment name",
+    "due_date": "01/01/2024",
+    "tests": {
+      "input1.txt": "output1.txt",
+      "input2.txt": "output2.txt",
+      "input3.txt": "output3.txt"
+    }
+  }
+]

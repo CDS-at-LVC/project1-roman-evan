@@ -1,0 +1,46 @@
+[
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "admin",
+        "username": "admin"
+    },
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "instructor",
+        "username": "roman"
+    },
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "instructor",
+        "username": "user2"
+    },
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "student",
+        "username": "noodle"
+    },
+    {
+        "completed": [
+            "assignment_ids"
+        ],
+        "password": "password",
+        "role": "student",
+        "username": "usrn4m3"
+    },
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "instructor",
+        "username": "evan"
+    },
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "student",
+        "username": "noodle2"
+    }
+]

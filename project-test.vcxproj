@@ -128,18 +128,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Frames\AdminFrame.cpp" />
+    <ClCompile Include="Frames\LoginFrame.cpp" />
+    <ClCompile Include="Frames\InstructorFrame.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="User.cpp" />
+    <ClCompile Include="Models\User.cpp" />
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project1-roman-evan.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="jsonSchemas\assignment-schema.json" />
+    <None Include="jsonSchemas\submissions-schema.json" />
+    <None Include="jsonSchemas\users-schema.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Frames\AdminFrame.h" />
+    <ClInclude Include="Frames\LoginFrame.h" />
+    <ClInclude Include="Frames\InstructorFrame.h" />
+    <ClInclude Include="Frames\SubmitFrame.h" />
+    <ClInclude Include="Models\User.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="User.h" />
+    <ClInclude Include="Util\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="new-icon.ico" />
