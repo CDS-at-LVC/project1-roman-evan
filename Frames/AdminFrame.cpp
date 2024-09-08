@@ -89,7 +89,7 @@ void AdminFrame::load_users() {
 	for (const auto& user : users) {
 		auto new_user = user.get<User>();
 		if (new_user != currentUser) {
-			usersMap[new_user.get_username()] = new_user;
+			usersMap[new_user.get_username()] = std::move(new_user);
 		}
 	}
 
@@ -103,11 +103,15 @@ void AdminFrame::createUser(const std::string& username, const std::string& role
 		return;
 	}
 
+	if (role != "student" && role != "instructor" && role != "admin") {
+		wxMessageBox("This role is not valid", "Error", wxOK | wxICON_ERROR);
+		return;
+	}
+
 	usersMap[username] = User(username, password, role, {});
 
 	wxUserArray.Add(username);
 	userList->Set(wxUserArray);
-	// Add user to admin vector of usernames to be displayed, assuming we dont want admin to control other admin
 
 	wxMessageBox("User created successfully!", "Success", wxOK | wxICON_INFORMATION);
 }
@@ -120,20 +124,26 @@ void AdminFrame::deleteUser(const std::string& username) {
 	}
 
 	usersMap.erase(username);
-	get_keys(usersMap, wxUserArray);
+	wxUserArray.Remove(username);
 	userList->Set(wxUserArray);
 
 	wxMessageBox("User deleted successfully!", "Success", wxOK | wxICON_INFORMATION);
 }
 
 void AdminFrame::onCreateUser(wxCommandEvent& event) {
+	wxArrayString choices;
+	choices.Add("student");
+	choices.Add("instructor");
+	choices.Add("admin");
+
 	wxTextEntryDialog usernameDlg(this, "Enter username:", "Create User");
 	if (usernameDlg.ShowModal() == wxID_OK) {
 		std::string username = usernameDlg.GetValue().ToStdString();
 
-		wxTextEntryDialog roleDlg(this, "Enter role (student, intructor, admin):", "Create User");
+		wxSingleChoiceDialog roleDlg(this, "Select role:", "Create User", choices);
+
 		if (roleDlg.ShowModal() == wxID_OK) {
-			std::string role = roleDlg.GetValue().ToStdString();
+			std::string role = roleDlg.GetStringSelection().ToStdString();
 
 			wxTextEntryDialog passwordDlg(this, "Enter password:", "Create User");
 			if (passwordDlg.ShowModal() == wxID_OK) {
