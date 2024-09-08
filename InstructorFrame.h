@@ -7,11 +7,12 @@
 #include <fstream>
 #include <vector>
 #include <ctime>
+#include "User.h"
 
 class InstructorFrame : public wxFrame {
 public:
 
-	InstructorFrame(const wxString& title);
+	InstructorFrame(const wxString& title, User current_user);
 
 	void create_assignment(std::string assignment_name, std::vector<std::string> input_files, std::vector<std::string> output_files, time_t due_date);
 	void delete_assignment(std::string assignment_name);
@@ -25,6 +26,7 @@ public:
 private:
 	std::vector<std::string> student_vector;
 	std::vector<std::string> assignment_vector;
+	User current_user;
 
 	wxListBox* assignment_list;
 	wxListBox* student_list;

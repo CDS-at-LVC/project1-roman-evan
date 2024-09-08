@@ -133,6 +133,7 @@
     <ClCompile Include="LoginFrame.cpp" />
     <ClCompile Include="InstructorFrame.cpp" />
     <ClCompile Include="Assignment.cpp" />
+    <ClCompile Include="User.cpp" />
     <ClCompile Include="Submission.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="AdminFrame.h" />
     <ClInclude Include="Assignment.h" />
+    <ClInclude Include="User.h" />
     <ClInclude Include="Submission.h" />
     <ClInclude Include="InstructorFrame.h" />
     <ClInclude Include="StudentFrame.h" />
@@ -156,6 +158,7 @@
   <ItemGroup>
     <Text Include="assignment-schema2.json">
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

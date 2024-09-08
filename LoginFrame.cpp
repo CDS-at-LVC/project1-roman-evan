@@ -1,25 +1,31 @@
 #include "LoginFrame.h"
 #include "AdminFrame.h"
 #include "InstructorFrame.h"
+#include <wx/wx.h>
+#include <nlohmann/json.hpp>
 #include <fstream>
-#define _CRT_SECURE_NO_WARNINGS
+#include <vector>
+
+using json = nlohmann::json;
 
 LoginFrame::LoginFrame(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(300, 200))
 {
     wxPanel* panel = new wxPanel(this, wxID_ANY);
 
-    wxStaticText* userLabel = new wxStaticText(panel, wxID_ANY, wxT("Username:"), wxPoint(20, 20));
-    userTextCtrl = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxPoint(100, 20), wxSize(150, 25));
+    wxStaticText* userLabel = new wxStaticText(panel, wxID_ANY, "Username:", wxPoint(20, 20));
+    userTextCtrl = new wxTextCtrl(panel, wxID_ANY, "", wxPoint(100, 20), wxSize(150, 25));
 
-    wxStaticText* passLabel = new wxStaticText(panel, wxID_ANY, wxT("Password:"), wxPoint(20, 60));
-    passTextCtrl = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxPoint(100, 60), wxSize(150, 25), wxTE_PASSWORD);
+    wxStaticText* passLabel = new wxStaticText(panel, wxID_ANY, "Password:", wxPoint(20, 60));
+    passTextCtrl = new wxTextCtrl(panel, wxID_ANY, "", wxPoint(100, 60), wxSize(150, 25), wxTE_PASSWORD);
 
-    wxButton* loginBtn = new wxButton(panel, wxID_ANY, wxT("Login"), wxPoint(60, 110));
-    wxButton* cancelBtn = new wxButton(panel, wxID_ANY, wxT("Cancel"), wxPoint(150, 110));
+    wxButton* loginBtn = new wxButton(panel, wxID_ANY, "Login", wxPoint(60, 110));
+    wxButton* cancelBtn = new wxButton(panel, wxID_ANY, "Cancel", wxPoint(150, 110));
 
     loginBtn->Bind(wxEVT_BUTTON, &LoginFrame::OnLogin, this);
     cancelBtn->Bind(wxEVT_BUTTON, &LoginFrame::OnCancel, this);
+
+    Centre();  // Center the frame on the screen
 }
 
 void LoginFrame::OnLogin(wxCommandEvent& event)
@@ -39,35 +45,36 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
         return;
     }
 
-    // Grab json users
     json users;
     file >> users;
     file.close();
 
+    for (const auto& user : users)
+    {
+        if (user["username"] == username.ToStdString() && user["password"] == password.ToStdString())
+        {
+            std::string role = user["role"];
+            User current_user(username.ToStdString(), password.ToStdString(), role);
 
-    // Look through the users, display correect UI based on role based on the username and password given
-    for (const auto& user : users) {
-        if (user["username"] == username.ToStdString() && user["password"] == password.ToStdString()) {
-            // Display Admin frame for admin
-            if (user["role"] == "admin") {
-                AdminFrame* adminFrame = new AdminFrame(wxT("Admin Dashboard"));
+            Close(true);  // Close the login window
+
+            if (role == "admin")
+            {
+                AdminFrame* adminFrame = new AdminFrame("Admin Dashboard", current_user);
                 adminFrame->Show(true);
-                Close(true); // Close LoginFrame
-                return;
             }
-            else if (user["role"] == "instructor") {
-                InstructorFrame* instructor_frame = new InstructorFrame(wxT("Instructor Dashboard"));
-                instructor_frame->Show(true);
-                Close(true);
-                return;
+            else if (role == "instructor")
+            {
+                InstructorFrame* instructorFrame = new InstructorFrame("Instructor Dashboard", current_user);
+                instructorFrame->Show(true);
+            }
+            
+            else
+            {
+                wxMessageBox("Unknown user role", "Error", wxOK | wxICON_ERROR);
             }
 
-            // Display Student/Instructor frame. Possibly single templete for both and pass in the role maybe?
-            else {
-
-                wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
-                return;
-            }
+            return;
         }
     }
 

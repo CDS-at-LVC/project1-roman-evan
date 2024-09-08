@@ -11,7 +11,7 @@
 
 using json = nlohmann::json;
 
-InstructorFrame::InstructorFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 300))
+InstructorFrame::InstructorFrame(const wxString& title, User current_user) : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 300)), current_user(current_user)
 {
 	wxPanel* instructor_panel = new wxPanel(this, wxID_ANY);
 	instructor_panel->SetBackgroundColour(wxColour(240, 240, 240));
@@ -80,7 +80,7 @@ std::vector<std::string> InstructorFrame::get_students() {
 }
 
 void InstructorFrame::create_assignment(std::string assignment_name, std::vector<std::string> input_files, std::vector<std::string> output_files, time_t due_date) {
-	std::ifstream file("assignments-schema2.json");
+	std::ifstream file("assignment-schema2.json");
 	if (!file.is_open()) {
 		wxMessageBox("Failed to open assignments-schema2.json", "Error", wxOK | wxICON_ERROR);
 		return;
@@ -114,7 +114,7 @@ void InstructorFrame::create_assignment(std::string assignment_name, std::vector
 }
 
 void InstructorFrame::delete_assignment(std::string assignment_name) {
-	std::ifstream file("assignments-schema2.json");
+	std::ifstream file("assignment-schema2.json");
 	if (!file.is_open()) {
 		wxMessageBox("Failed to open assignments-schema2.json", "Error", wxOK | wxICON_ERROR);
 		return;
@@ -130,7 +130,7 @@ void InstructorFrame::delete_assignment(std::string assignment_name) {
 
 	if (it != assignments.end()) {
 		assignments.erase(it, assignments.end());
-		std::ofstream out_file("assignments-schema2.json");
+		std::ofstream out_file("assignment-schema2.json");
 		out_file << assignments.dump(4);
 		out_file.close();
 		update_assignments();
@@ -156,10 +156,10 @@ void InstructorFrame::on_delete_assignment(wxCommandEvent& event) {
 }
 
 void InstructorFrame::update_assignments() {
-	assignment_vector.clear();
-	assignment_list->Clear();
+	//assignment_vector.clear();
+	//assignment_list->Clear();
 
-	std::ifstream file("assignments-schema2.json");
+	std::ifstream file("assignment-schema2.json");
 	if (!file.is_open()) {
 		wxMessageBox("Failed to open assignments-schema2.json", "Error", wxOK | wxICON_ERROR);
 		return;
@@ -181,13 +181,13 @@ void InstructorFrame::update_assignments() {
 		return;
 	}
 
-	for (const auto& assignment : assignments) {
+	for (const auto assignment : assignments) {
 		if (assignment.contains("assignment_name")) {
 			std::string assignment_name = assignment["assignment_name"].get<std::string>();
 			assignment_vector.push_back(assignment_name);
 
-			wxString wx_assignment_name = wxString::FromUTF8(assignment_name.c_str());
-			assignment_list->Append(wx_assignment_name);
+			//wxString wx_assignment_name = wxString::FromUTF8(assignment_name.c_str());
+			//assignment_list->AppendString(wx_assignment_name);
 		}
 		else {
 			wxMessageBox("Missing 'assignment_name' in JSON", "Error", wxOK | wxICON_ERROR);
@@ -200,10 +200,10 @@ void InstructorFrame::update_students_for_assignment(const std::string& assignme
 	student_list->Clear();
 	get_students();
 
-	for (const auto& student : student_vector) {
-		wxString wx_student = wxString::FromUTF8(student.c_str());  // Safe conversion
-		student_list->Append(wx_student); // Eventually, display grades here
-	}
+	//for (const auto student : student_vector) {
+		//wxString wx_student = wxString::FromUTF8(student.c_str());  // Safe conversion
+		//student_list->AppendString(wx_student); // Eventually, display grades here
+	//}
 }
 
 void InstructorFrame::on_select_assignment(wxCommandEvent& event) {

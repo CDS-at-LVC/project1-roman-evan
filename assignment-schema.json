@@ -1,9 +1,0 @@
-[
-  {
-    "id": "id_unique",
-    "name": "assignment name",
-    "due_date": "01/01/2024",
-    "solution_source": "C:/path",
-    "tests_source": "C:/path/tests"
-  }
-]

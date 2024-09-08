@@ -3,11 +3,12 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 using json = nlohmann::json;
 
-AdminFrame::AdminFrame(const wxString& title)
-    : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 300))
+AdminFrame::AdminFrame(const wxString& title, const User& current_user)
+    : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 300)), current_user(current_user)
 {
     // Create the main panel
     wxPanel* admin_panel = new wxPanel(this, wxID_ANY);
@@ -26,7 +27,7 @@ AdminFrame::AdminFrame(const wxString& title)
 
     wxArrayString wxUserArray;
     for (const auto& user : usersVector) {
-        wxUserArray.Add(user);
+        wxUserArray.Add(user.get_username());
     }
 
     // Create a styled wxListBox to display users
@@ -52,28 +53,29 @@ AdminFrame::AdminFrame(const wxString& title)
     Centre();
 }
 
-std::vector<std::string> AdminFrame::get_users() {
+std::vector<User> AdminFrame::get_users() {
+    std::vector<User> users;
     std::ifstream file("users-schema.json");
 
     if (!file.is_open()) {
         wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
-        return usersVector;
+        return users;
     }
 
-    json users;
-    file >> users;
+    json json_users;
+    file >> json_users;
 
-    for (const auto& user : users) {
+    for (const auto& user : json_users) {
         if (user["role"] != "admin") {
-            usersVector.push_back(user["username"]);
+            users.emplace_back(user["username"], user["password"], user["role"]);
         }
     }
 
     file.close();
-    return usersVector;
+    return users;
 }
 
-void AdminFrame::createUser(std::string username, std::string role, std::string password) {
+void AdminFrame::createUser(const std::string& username, const std::string& role, const std::string& password) {
     std::ifstream file("users-schema.json");
     if (!file.is_open()) {
         wxMessageBox("Failed to open users-schema.json", "Error", wxOK | wxICON_ERROR);
@@ -85,11 +87,10 @@ void AdminFrame::createUser(std::string username, std::string role, std::string 
     file.close();
 
     // Check to see if username already exists
-    for (const auto& user : users) {
-        if (user["username"] == username) {
-            wxMessageBox("Username already exists!", "Error", wxOK | wxICON_ERROR);
-            return;
-        }
+    if (std::any_of(usersVector.begin(), usersVector.end(),
+        [&username](const User& user) { return user.get_username() == username; })) {
+        wxMessageBox("Username already exists!", "Error", wxOK | wxICON_ERROR);
+        return;
     }
 
     // Create and add new user to json file
@@ -104,18 +105,18 @@ void AdminFrame::createUser(std::string username, std::string role, std::string 
 
     std::ofstream outFile("users-schema.json");
     outFile << std::setw(4) << users << std::endl;
-    outFile.close(); 
+    outFile.close();
 
     // Add user to admin vector of usernames to be displayed, assuming we dont want admin to control other admin
     if (role != "admin") {
-        usersVector.push_back(username);
+        usersVector.emplace_back(username, password, role);
         userList->AppendString(username);  // Update the wxListBox with the new user
     }
 
     wxMessageBox("User created successfully!", "Success", wxOK | wxICON_INFORMATION);
 }
 
-void AdminFrame::deleteUser(std::string username) {
+void AdminFrame::deleteUser(const std::string& username) {
     std::ifstream file("users-schema.json");
     if (!file.is_open()) {
         wxMessageBox("Failed to open users-schema.json", "Error", wxOK | wxICON_ERROR);
@@ -126,23 +127,17 @@ void AdminFrame::deleteUser(std::string username) {
     file >> users;
     file.close();
 
-    bool user_deleted = false;
-
-    // Use iterator to make deletion easier
-    for (auto it = users.begin(); it != users.end(); ++it) {
-        if ((*it)["username"] == username) {
-            users.erase(it);
-            user_deleted = true;
-            break;
-        }
-    }
+    users.erase(std::remove_if(users.begin(), users.end(),
+        [&username](const json& user) { return user["username"] == username; }),
+        users.end());
 
     std::ofstream outFile("users-schema.json");
     outFile << std::setw(4) << users << std::endl;
     outFile.close();
 
     // delete from admins user vector
-    auto it = std::find(usersVector.begin(), usersVector.end(), username);
+    auto it = std::find_if(usersVector.begin(), usersVector.end(),
+        [&username](const User& user) { return user.get_username() == username; });
     if (it != usersVector.end()) {
         usersVector.erase(it);
         userList->Delete(userList->FindString(username));  // Remove the user from the wxListBox
@@ -156,11 +151,11 @@ void AdminFrame::onCreateUser(wxCommandEvent& event) {
     if (usernameDlg.ShowModal() == wxID_OK) {
         std::string username = usernameDlg.GetValue().ToStdString();
 
-        wxTextEntryDialog roleDlg(this, "Enter role (student, intructor, admin):", "Create User");
+        wxTextEntryDialog roleDlg(this, "Enter role (student, instructor, admin):", "Create User");
         if (roleDlg.ShowModal() == wxID_OK) {
             std::string role = roleDlg.GetValue().ToStdString();
 
-            wxTextEntryDialog passwordDlg(this, "Enter password:", "Create User");
+            wxTextEntryDialog passwordDlg(this, "Enter password:", "Create User", wxEmptyString, wxTE_PASSWORD);
             if (passwordDlg.ShowModal() == wxID_OK) {
                 std::string password = passwordDlg.GetValue().ToStdString();
                 createUser(username, role, password);
