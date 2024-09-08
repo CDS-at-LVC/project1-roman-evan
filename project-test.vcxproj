@@ -131,7 +131,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AdminFrame.cpp" />
     <ClCompile Include="LoginFrame.cpp" />
-    <ClCompile Include="StudentFrame.cpp" />
+    <ClCompile Include="InstructorFrame.cpp" />
+    <ClCompile Include="Assignment.cpp" />
+    <ClCompile Include="Submission.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc" />
@@ -145,8 +147,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdminFrame.h" />
+    <ClInclude Include="Assignment.h" />
+    <ClInclude Include="Submission.h" />
+    <ClInclude Include="InstructorFrame.h" />
     <ClInclude Include="StudentFrame.h" />
     <ClInclude Include="LoginFrame.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="assignment-schema2.json">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

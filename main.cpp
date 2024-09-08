@@ -1,6 +1,7 @@
 #include <wx/wx.h>
 #include "LoginFrame.h"
 #include "AdminFrame.h"
+#define _CRT_SECURE_NO_WARNINGS
 
 
 // Define the main application class

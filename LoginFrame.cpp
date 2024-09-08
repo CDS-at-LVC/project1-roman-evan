@@ -1,6 +1,8 @@
 #include "LoginFrame.h"
 #include "AdminFrame.h"
+#include "InstructorFrame.h"
 #include <fstream>
+#define _CRT_SECURE_NO_WARNINGS
 
 LoginFrame::LoginFrame(const wxString& title)
     : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(300, 200))
@@ -51,6 +53,12 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
                 AdminFrame* adminFrame = new AdminFrame(wxT("Admin Dashboard"));
                 adminFrame->Show(true);
                 Close(true); // Close LoginFrame
+                return;
+            }
+            else if (user["role"] == "instructor") {
+                InstructorFrame* instructor_frame = new InstructorFrame(wxT("Instructor Dashboard"));
+                instructor_frame->Show(true);
+                Close(true);
                 return;
             }
 

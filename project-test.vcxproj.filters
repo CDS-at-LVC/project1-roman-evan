@@ -24,6 +24,15 @@
     <ClCompile Include="LoginFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InstructorFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Assignment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Submission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc">
@@ -48,5 +57,20 @@
     <ClInclude Include="AdminFrame.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="InstructorFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StudentFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Assignment.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Submission.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="assignment-schema2.json" />
   </ItemGroup>
 </Project>

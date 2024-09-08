@@ -104,7 +104,7 @@ void AdminFrame::createUser(std::string username, std::string role, std::string 
 
     std::ofstream outFile("users-schema.json");
     outFile << std::setw(4) << users << std::endl;
-    outFile.close();
+    outFile.close(); 
 
     // Add user to admin vector of usernames to be displayed, assuming we dont want admin to control other admin
     if (role != "admin") {
