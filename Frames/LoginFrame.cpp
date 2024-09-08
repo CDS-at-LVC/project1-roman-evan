@@ -43,10 +43,44 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
     json users;
     file >> users;
     file.close();
+    json current_user;
+
+    for (const auto& user : users)
+    {
+        if (user["username"] == username.ToStdString() && user["password"] == password.ToStdString())
+        {
+            current_user = user;
+            break;
+        }
+    }
+
+    wxFrame* frame = nullptr;
+
+    if (current_user["role"] == "admin")
+    {
+        frame = new AdminFrame(wxT("Admin Dashboard"));
+    }
+    else if (current_user["role"] == "instructor")
+    {
+        frame = new InstructorFrame();
+    }
+    else {
+        wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    if (frame)
+    {
+        frame->Show();
+        Close(true);
+    }
+
+
+
 
 
     // Look through the users, display correect UI based on role based on the username and password given
-    for (const auto& user : users) {
+    /*for (const auto& user : users) {
         if (user["username"] == username.ToStdString() && user["password"] == password.ToStdString()) {
             // Display Admin frame for admin
             if (user["role"] == "admin") {
@@ -71,7 +105,7 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
         }
     }
 
-    wxMessageBox("Invalid username or password", "Error", wxOK | wxICON_ERROR);
+    wxMessageBox("Invalid username or password", "Error", wxOK | wxICON_ERROR);*/
 }
 
 void LoginFrame::OnCancel(wxCommandEvent& event)

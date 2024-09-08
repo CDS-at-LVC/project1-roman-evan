@@ -129,9 +129,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="AdminFrame.cpp" />
-    <ClCompile Include="LoginFrame.cpp" />
-    <ClCompile Include="InstructorFrame.cpp" />
+    <ClCompile Include="Frames\AdminFrame.cpp" />
+    <ClCompile Include="Frames\LoginFrame.cpp" />
     <ClCompile Include="Assignment.cpp" />
     <ClCompile Include="Submission.cpp" />
   </ItemGroup>
@@ -146,12 +145,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AdminFrame.h" />
+    <ClInclude Include="Frames\AdminFrame.h" />
     <ClInclude Include="Assignment.h" />
     <ClInclude Include="Submission.h" />
-    <ClInclude Include="InstructorFrame.h" />
+    <ClInclude Include="Frames\InstructorFrame.h" />
     <ClInclude Include="StudentFrame.h" />
-    <ClInclude Include="LoginFrame.h" />
+    <ClInclude Include="Frames\LoginFrame.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="assignment-schema2.json">
