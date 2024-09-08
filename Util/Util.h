@@ -6,6 +6,7 @@
 
 template<typename KeyType, typename ValueType>
 void get_keys(const std::unordered_map<KeyType, ValueType>& map, wxArrayString& keysArray) {
+    keysArray.clear();
     keysArray.reserve(map.size());  // Reserve space to avoid multiple allocations
 
     for (const auto& pair : map) {

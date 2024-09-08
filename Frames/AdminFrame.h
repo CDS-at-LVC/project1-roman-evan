@@ -15,9 +15,9 @@ public:
     void load_users();
 
     void createUser(const std::string& username, const std::string& role, const std::string& password);
-    //void deleteUser(std::string username);
+    void deleteUser(const std::string& username);
     void onCreateUser(wxCommandEvent& event);
-    //void onDeleteUser(wxCommandEvent& event);
+    void onDeleteUser(wxCommandEvent& event);
 
 private:
     void OnClose(wxCloseEvent& event);

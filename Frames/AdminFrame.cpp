@@ -17,7 +17,7 @@ AdminFrame::AdminFrame(const wxString& title, User adminUser)
 
 	// Bind events to the buttons
 	create_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onCreateUser, this);
-	//delete_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onDeleteUser, this);
+	delete_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onDeleteUser, this);
 	Bind(wxEVT_CLOSE_WINDOW, &AdminFrame::OnClose, this);
 
 	// Get the user list from the JSON file
@@ -112,41 +112,19 @@ void AdminFrame::createUser(const std::string& username, const std::string& role
 	wxMessageBox("User created successfully!", "Success", wxOK | wxICON_INFORMATION);
 }
 
-/*void AdminFrame::deleteUser(std::string username) {
-	std::ifstream file("jsonSchemas/users-schema.json");
-	if (!file.is_open()) {
-		wxMessageBox("Failed to open users-schema.json", "Error", wxOK | wxICON_ERROR);
+void AdminFrame::deleteUser(const std::string& username) {
+
+	if (usersMap.find(username) == usersMap.end()) {
+		wxMessageBox("User with this username doesn't exists", "Error", wxOK | wxICON_ERROR);
 		return;
 	}
 
-	json users;
-	file >> users;
-	file.close();
-
-	bool user_deleted = false;
-
-	// Use iterator to make deletion easier
-	for (auto it = users.begin(); it != users.end(); ++it) {
-		if ((*it)["username"] == username) {
-			users.erase(it);
-			user_deleted = true;
-			break;
-		}
-	}
-
-	std::ofstream outFile("jsonSchemas/users-schema.json");
-	outFile << std::setw(4) << users << std::endl;
-	outFile.close();
-
-	// delete from admins user vector
-	auto it = std::find(usersVector.begin(), usersVector.end(), username);
-	if (it != usersVector.end()) {
-		usersVector.erase(it);
-		userList->Delete(userList->FindString(username));  // Remove the user from the wxListBox
-	}
+	usersMap.erase(username);
+	get_keys(usersMap, wxUserArray);
+	userList->Set(wxUserArray);
 
 	wxMessageBox("User deleted successfully!", "Success", wxOK | wxICON_INFORMATION);
-}*/
+}
 
 void AdminFrame::onCreateUser(wxCommandEvent& event) {
 	wxTextEntryDialog usernameDlg(this, "Enter username:", "Create User");
@@ -165,7 +143,7 @@ void AdminFrame::onCreateUser(wxCommandEvent& event) {
 		}
 	}
 }
-/*
+
 void AdminFrame::onDeleteUser(wxCommandEvent& event) {
 	wxString selectedUser = userList->GetStringSelection();
 	if (selectedUser.IsEmpty()) {
@@ -178,4 +156,3 @@ void AdminFrame::onDeleteUser(wxCommandEvent& event) {
 		deleteUser(selectedUser.ToStdString());
 	}
 }
-*/
