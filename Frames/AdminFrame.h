@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include "../Models/User.h"
+#include "../Util/Util.h"
 
 using json = nlohmann::json;
 
