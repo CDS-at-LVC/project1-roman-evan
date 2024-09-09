@@ -128,9 +128,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AdminFrame.cpp" />
+    <ClCompile Include="Assignment.cpp" />
+    <ClCompile Include="InstructorFrame.cpp" />
+    <ClCompile Include="LoginFrame.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Models\User.cpp" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="Submission.cpp" />
+    <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc" />
@@ -140,21 +144,17 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assignment-schema.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Frames\AdminFrame.h" />
-    <ClInclude Include="Frames\LoginFrame.h" />
-    <ClInclude Include="Frames\InstructorFrame.h" />
-    <ClInclude Include="Frames\SubmitFrame.h" />
-    <ClInclude Include="Models\User.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Util\Util.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="assignment-schema2.json">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-    </Text>
+    <ClInclude Include="AdminFrame.h" />
+    <ClInclude Include="Assignment.h" />
+    <ClInclude Include="InstructorFrame.h" />
+    <ClInclude Include="LoginFrame.h" />
+    <ClInclude Include="Submission.h" />
+    <ClInclude Include="User.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

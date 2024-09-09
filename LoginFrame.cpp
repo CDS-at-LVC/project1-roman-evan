@@ -1,7 +1,8 @@
 #include "LoginFrame.h"
 #include "AdminFrame.h"
 #include "InstructorFrame.h"
-#include <fstream>
+#include "User.h"
+
 #define _CRT_SECURE_NO_WARNINGS
 
 LoginFrame::LoginFrame(const wxString& title)
@@ -39,39 +40,46 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
         return;
     }
 
-    // Grab json users
     json users;
     file >> users;
     file.close();
+    User current_user;
 
-
-    // Look through the users, display correect UI based on role based on the username and password given
-    for (const auto& user : users) {
-        if (user["username"] == username.ToStdString() && user["password"] == password.ToStdString()) {
-            // Display Admin frame for admin
-            if (user["role"] == "admin") {
-                AdminFrame* adminFrame = new AdminFrame(wxT("Admin Dashboard"));
-                adminFrame->Show(true);
-                Close(true); // Close LoginFrame
-                return;
-            }
-            else if (user["role"] == "instructor") {
-                InstructorFrame* instructor_frame = new InstructorFrame(wxT("Instructor Dashboard"));
-                instructor_frame->Show(true);
-                Close(true);
-                return;
-            }
-
-            // Display Student/Instructor frame. Possibly single templete for both and pass in the role maybe?
-            else {
-
-                wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
-                return;
-            }
+    for (const auto& user : users)
+    {
+        if (user["username"] == username.ToStdString() && user["password"] == password.ToStdString())
+        {
+            current_user = user;
+            break;
         }
     }
 
-    wxMessageBox("Invalid username or password", "Error", wxOK | wxICON_ERROR);
+    if (current_user.get_username().empty()) {
+        wxMessageBox("Invalid credentials entered", "Error", wxOK | wxICON_ERROR);
+        return;
+    }
+
+    wxFrame* frame = nullptr;
+    std::string role = current_user.get_role();
+
+    if (role == "admin")
+    {
+        frame = new AdminFrame(wxT("Admin Dashboard"), std::move(current_user));
+    }
+    else if (role == "instructor")
+    {
+        frame = new InstructorFrame(wxT("Instructor Dashboard"));
+    }
+    else {
+        wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    if (frame)
+    {
+        frame->Show();
+        Close(true);
+    }
 }
 
 void LoginFrame::OnCancel(wxCommandEvent& event)

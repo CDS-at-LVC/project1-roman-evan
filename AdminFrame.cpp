@@ -1,183 +1,168 @@
 #include "AdminFrame.h"
-#include <wx/wx.h>
-#include <nlohmann/json.hpp>
-#include <fstream>
-#include <vector>
 
-using json = nlohmann::json;
 
-AdminFrame::AdminFrame(const wxString& title)
-    : wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 300))
+
+AdminFrame::AdminFrame(const wxString& title, User adminUser)
+	: wxFrame(nullptr, wxID_ANY, title, wxDefaultPosition, wxSize(400, 300))
 {
-    // Create the main panel
-    wxPanel* admin_panel = new wxPanel(this, wxID_ANY);
-    admin_panel->SetBackgroundColour(wxColour(240, 240, 240));  // Light gray background
+	currentUser = std::move(adminUser);
 
-    // Create buttons for "Create User" and "Delete User"
-    wxButton* create_user_button = new wxButton(admin_panel, wxID_ANY, "Create User", wxDefaultPosition, wxSize(100, 30));
-    wxButton* delete_user_button = new wxButton(admin_panel, wxID_ANY, "Delete User", wxDefaultPosition, wxSize(100, 30));
+	// Create the main panel
+	wxPanel* admin_panel = new wxPanel(this, wxID_ANY);
+	admin_panel->SetBackgroundColour(wxColour(240, 240, 240));  // Light gray background
 
-    // Bind events to the buttons
-    create_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onCreateUser, this);
-    delete_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onDeleteUser, this);
+	// Create buttons for "Create User" and "Delete User"
+	wxButton* create_user_button = new wxButton(admin_panel, wxID_ANY, "Create User", wxDefaultPosition, wxSize(100, 30));
+	wxButton* delete_user_button = new wxButton(admin_panel, wxID_ANY, "Delete User", wxDefaultPosition, wxSize(100, 30));
 
-    // Get the user list from the JSON file
-    usersVector = get_users();
+	// Bind events to the buttons
+	create_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onCreateUser, this);
+	delete_user_button->Bind(wxEVT_BUTTON, &AdminFrame::onDeleteUser, this);
+	Bind(wxEVT_CLOSE_WINDOW, &AdminFrame::OnClose, this);
 
-    wxArrayString wxUserArray;
-    for (const auto& user : usersVector) {
-        wxUserArray.Add(user);
-    }
+	// Get the user list from the JSON file
+	load_users();
 
-    // Create a styled wxListBox to display users
-    userList = new wxListBox(admin_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxUserArray, wxLB_SINGLE | wxBORDER_SIMPLE);
-    userList->SetBackgroundColour(wxColour(255, 255, 255));  // White background for the list
-    userList->SetForegroundColour(wxColour(0, 0, 0));        // Black text color
-    userList->SetFont(wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+	get_keys(usersMap, wxUserArray);
 
-    // Use a sizer to manage layout
-    wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-    buttonSizer->Add(create_user_button, 0, wxRIGHT, 10);
-    buttonSizer->Add(delete_user_button, 0);
+	// Create a styled wxListBox to display users
+	userList = new wxListBox(admin_panel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxUserArray, wxLB_SINGLE | wxBORDER_SIMPLE);
+	userList->SetBackgroundColour(wxColour(255, 255, 255));  // White background for the list
+	userList->SetForegroundColour(wxColour(0, 0, 0));        // Black text color
+	userList->SetFont(wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
 
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->AddSpacer(20); // Add space at the top
-    mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, 20); // Align buttons to the right
-    mainSizer->Add(userList, 1, wxALL | wxEXPAND, 20);  // Add the list with padding
+	// Use a sizer to manage layout
+	wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+	buttonSizer->Add(create_user_button, 0, wxRIGHT, 10);
+	buttonSizer->Add(delete_user_button, 0);
 
-    // Set the sizer for the panel
-    admin_panel->SetSizer(mainSizer);
+	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+	mainSizer->AddSpacer(20); // Add space at the top
+	mainSizer->Add(buttonSizer, 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, 20); // Align buttons to the right
+	mainSizer->Add(userList, 1, wxALL | wxEXPAND, 20);  // Add the list with padding
 
-    // Center the frame on the screen
-    Centre();
+	// Set the sizer for the panel
+	admin_panel->SetSizer(mainSizer);
+	admin_panel->Layout();  // Force the layout to update
+
+	// Center the frame on the screen
+	Centre();
 }
 
-std::vector<std::string> AdminFrame::get_users() {
-    std::ifstream file("users-schema.json");
+void AdminFrame::OnClose(wxCloseEvent& event)
+{
+	// Convert the usersMap (or your data structure) back to JSON
+	json j_users = json::array();
+	j_users.push_back(currentUser);
 
-    if (!file.is_open()) {
-        wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
-        return usersVector;
-    }
+	// Iterate over the map and add each user object to the array
+	for (const auto& pair : usersMap) {
+		j_users.push_back(pair.second);
 
-    json users;
-    file >> users;
+		// Write the JSON to the file
+		std::ofstream file("users-schema.json");
+		if (file.is_open()) {
+			file << j_users.dump(4);  // Dump the JSON with 4-space indentation
+			file.close();
+		}
+		else {
+			wxMessageBox("Failed to save user data to file.", "Error", wxOK | wxICON_ERROR);
+		}
 
-    for (const auto& user : users) {
-        if (user["role"] != "admin") {
-            usersVector.push_back(user["username"]);
-        }
-    }
-
-    file.close();
-    return usersVector;
+		// Continue with the default close behavior
+		event.Skip();  // Ensures the window will actually close
+	}
 }
 
-void AdminFrame::createUser(std::string username, std::string role, std::string password) {
-    std::ifstream file("users-schema.json");
-    if (!file.is_open()) {
-        wxMessageBox("Failed to open users-schema.json", "Error", wxOK | wxICON_ERROR);
-        return;
-    }
 
-    json users;
-    file >> users;
-    file.close();
+void AdminFrame::load_users() {
+	std::ifstream file("users-schema.json");
 
-    // Check to see if username already exists
-    for (const auto& user : users) {
-        if (user["username"] == username) {
-            wxMessageBox("Username already exists!", "Error", wxOK | wxICON_ERROR);
-            return;
-        }
-    }
+	if (!file.is_open()) {
+		wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
+		return;
+	}
 
-    // Create and add new user to json file
-    json newUser = {
-        {"username", username},
-        {"role", role},
-        {"password", password},
-        {"completed", json::array()}
-    };
+	json users;
+	file >> users;
 
-    users.push_back(newUser);
+	for (const auto& user : users) {
+		auto new_user = user.get<User>();
+		if (new_user != currentUser) {
+			usersMap[new_user.get_username()] = std::move(new_user);
+		}
+	}
 
-    std::ofstream outFile("users-schema.json");
-    outFile << std::setw(4) << users << std::endl;
-    outFile.close(); 
-
-    // Add user to admin vector of usernames to be displayed, assuming we dont want admin to control other admin
-    if (role != "admin") {
-        usersVector.push_back(username);
-        userList->AppendString(username);  // Update the wxListBox with the new user
-    }
-
-    wxMessageBox("User created successfully!", "Success", wxOK | wxICON_INFORMATION);
+	file.close();
 }
 
-void AdminFrame::deleteUser(std::string username) {
-    std::ifstream file("users-schema.json");
-    if (!file.is_open()) {
-        wxMessageBox("Failed to open users-schema.json", "Error", wxOK | wxICON_ERROR);
-        return;
-    }
+void AdminFrame::createUser(const std::string& username, const std::string& role, const std::string& password) {
+	// Check to see if username already exists
+	if (usersMap.find(username) != usersMap.end()) {
+		wxMessageBox("User with this username already exists", "Error", wxOK | wxICON_ERROR);
+		return;
+	}
 
-    json users;
-    file >> users;
-    file.close();
+	if (role != "student" && role != "instructor" && role != "admin") {
+		wxMessageBox("This role is not valid", "Error", wxOK | wxICON_ERROR);
+		return;
+	}
 
-    bool user_deleted = false;
+	usersMap[username] = User(username, password, role, {});
 
-    // Use iterator to make deletion easier
-    for (auto it = users.begin(); it != users.end(); ++it) {
-        if ((*it)["username"] == username) {
-            users.erase(it);
-            user_deleted = true;
-            break;
-        }
-    }
+	wxUserArray.Add(username);
+	userList->Set(wxUserArray);
 
-    std::ofstream outFile("users-schema.json");
-    outFile << std::setw(4) << users << std::endl;
-    outFile.close();
+	wxMessageBox("User created successfully!", "Success", wxOK | wxICON_INFORMATION);
+}
 
-    // delete from admins user vector
-    auto it = std::find(usersVector.begin(), usersVector.end(), username);
-    if (it != usersVector.end()) {
-        usersVector.erase(it);
-        userList->Delete(userList->FindString(username));  // Remove the user from the wxListBox
-    }
+void AdminFrame::deleteUser(const std::string& username) {
 
-    wxMessageBox("User deleted successfully!", "Success", wxOK | wxICON_INFORMATION);
+	if (usersMap.find(username) == usersMap.end()) {
+		wxMessageBox("User with this username doesn't exists", "Error", wxOK | wxICON_ERROR);
+		return;
+	}
+
+	usersMap.erase(username);
+	wxUserArray.Remove(username);
+	userList->Set(wxUserArray);
+
+	wxMessageBox("User deleted successfully!", "Success", wxOK | wxICON_INFORMATION);
 }
 
 void AdminFrame::onCreateUser(wxCommandEvent& event) {
-    wxTextEntryDialog usernameDlg(this, "Enter username:", "Create User");
-    if (usernameDlg.ShowModal() == wxID_OK) {
-        std::string username = usernameDlg.GetValue().ToStdString();
+	wxArrayString choices;
+	choices.Add("student");
+	choices.Add("instructor");
+	choices.Add("admin");
 
-        wxTextEntryDialog roleDlg(this, "Enter role (student, intructor, admin):", "Create User");
-        if (roleDlg.ShowModal() == wxID_OK) {
-            std::string role = roleDlg.GetValue().ToStdString();
+	wxTextEntryDialog usernameDlg(this, "Enter username:", "Create User");
+	if (usernameDlg.ShowModal() == wxID_OK) {
+		std::string username = usernameDlg.GetValue().ToStdString();
 
-            wxTextEntryDialog passwordDlg(this, "Enter password:", "Create User");
-            if (passwordDlg.ShowModal() == wxID_OK) {
-                std::string password = passwordDlg.GetValue().ToStdString();
-                createUser(username, role, password);
-            }
-        }
-    }
+		wxSingleChoiceDialog roleDlg(this, "Select role:", "Create User", choices);
+
+		if (roleDlg.ShowModal() == wxID_OK) {
+			std::string role = roleDlg.GetStringSelection().ToStdString();
+
+			wxTextEntryDialog passwordDlg(this, "Enter password:", "Create User");
+			if (passwordDlg.ShowModal() == wxID_OK) {
+				std::string password = passwordDlg.GetValue().ToStdString();
+				createUser(username, role, password);
+			}
+		}
+	}
 }
 
 void AdminFrame::onDeleteUser(wxCommandEvent& event) {
-    wxString selectedUser = userList->GetStringSelection();
-    if (selectedUser.IsEmpty()) {
-        wxMessageBox("Please select a user to delete.", "Error", wxOK | wxICON_ERROR);
-        return;
-    }
+	wxString selectedUser = userList->GetStringSelection();
+	if (selectedUser.IsEmpty()) {
+		wxMessageBox("Please select a user to delete.", "Error", wxOK | wxICON_ERROR);
+		return;
+	}
 
-    wxMessageDialog confirmDlg(this, "Are you sure you want to delete the user '" + selectedUser + "'?", "Confirm Deletion", wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
-    if (confirmDlg.ShowModal() == wxID_YES) {
-        deleteUser(selectedUser.ToStdString());
-    }
+	wxMessageDialog confirmDlg(this, "Are you sure you want to delete the user '" + selectedUser + "'?", "Confirm Deletion", wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
+	if (confirmDlg.ShowModal() == wxID_YES) {
+		deleteUser(selectedUser.ToStdString());
+	}
 }

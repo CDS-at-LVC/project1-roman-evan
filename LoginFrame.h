@@ -1,7 +1,10 @@
-#ifndef LOGINFRAME_H
-#define LOGINFRAME_H
+#pragma once
 
 #include <wx/wx.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 class LoginFrame : public wxFrame
 {
@@ -15,5 +18,3 @@ private:
     void OnLogin(wxCommandEvent& event);
     void OnCancel(wxCommandEvent& event);
 };
-
-#endif // LOGINFRAME_H

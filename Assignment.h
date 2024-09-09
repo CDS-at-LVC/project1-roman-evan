@@ -1,32 +1,50 @@
-/*#ifndef ASSIGNMENT_H
-#define ASSIGNMENT_H
-
-#include <wx/wx.h>
-#include <wx/filepicker.h>
+#include <iomanip>
+#include <sstream>
 #include <nlohmann/json.hpp>
-#include <fstream>
-#include <vector>
-#include <ctime>
+
+using json = nlohmann::json;
 
 class Assignment {
 public:
-	Assignment(std::string assignment_name, std::vector<std::string> input, std::vector<std::string> output, time_t due_date);
+    Assignment();
 
-	std::string get_assignment_name();
-	std::vector<std::string> get_input_files();
-	std::vector<std::string> get_output_files();
-	time_t get_due_date();
-
-	bool is_past_due();
-
+    Assignment(const std::string& assignment_id,
+        const std::string& assignment_name,
+        const std::string& due_date,
+        std::vector<std::string> input_files,
+        std::vector<std::string> output_files);
 
 
+    Assignment(Assignment&& other) noexcept;
 
+
+    Assignment& operator=(Assignment&& other) noexcept;
+
+    Assignment(const Assignment& other);
+
+    Assignment& operator=(const Assignment& other);
+
+    bool operator==(const Assignment& other) const;
+    bool operator!=(const Assignment& other) const;
+
+
+    std::string get_assignment_id() const;
+    std::string get_assignment_name() const;
+
+    std::string get_due_date() const;
+
+    std::vector<std::string> get_inputs() const;
+
+    std::vector<std::string>get_outputs() const;
+
+    void friend to_json(json& j, const Assignment& model);
+    void friend from_json(const json& j, Assignment& model);
 private:
-	std::vector<std::string> input_files;
-	std::vector<std::string> output_files;
-	std::string assignment_name;
-	time_t due_date;
+    std::string assignment_id;
+    std::string assignment_name;
+    std::string due_date;
+    std::vector<std::string> input_files;
+    std::vector<std::string> output_files;
+
 };
 
-#endif*/

@@ -1,22 +1,22 @@
 [
-  {
-    "username": "usrn4m3",
-    "role": "student",
-    "password": "password",
-    "completed": [
-      "assignment_ids"
-    ]
-  },
-  {
-    "username": "admin",
-    "role": "admin",
-    "password": "1234",
-    "completed": []
-  },
-  {
-    "username": "user2",
-    "role": "instructor",
-    "password": "7890",
-    "completed": []
-  }
+    {
+        "completed": [],
+        "password": "1234",
+        "role": "admin",
+        "username": "admin"
+    },
+    {
+        "completed": [
+            "assignment_ids"
+        ],
+        "password": "password",
+        "role": "student",
+        "username": "usrn4m3"
+    },
+    {
+        "completed": [],
+        "password": "7890",
+        "role": "instructor",
+        "username": "user2"
+    }
 ]

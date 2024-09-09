@@ -1,39 +1,38 @@
-#ifndef INSTRUCTORFRAME_H
-#define INSTRUCTORFRAME_H
-
+#pragma once
+#include <wx/listctrl.h>
 #include <wx/wx.h>
-#include <wx/filepicker.h>
-#include <nlohmann/json.hpp>
 #include <fstream>
+#include <unordered_map>
+#include <nlohmann/json.hpp>
 #include <vector>
-#include <ctime>
+#include <wx/datectrl.h>
+#include <wx/aui/auibook.h>
+#include "User.h"
+#include "Util.h"
 
-class InstructorFrame : public wxFrame {
+using json = nlohmann::json;
+
+class InstructorFrame : public wxFrame
+{
 public:
-
-	InstructorFrame(const wxString& title);
-
-	void create_assignment(std::string assignment_name, std::vector<std::string> input_files, std::vector<std::string> output_files, time_t due_date);
-	void delete_assignment(std::string assignment_name);
-
-	void on_create_assignment(wxCommandEvent& event);
-	void on_delete_assignment(wxCommandEvent& event);
-	void on_select_assignment(wxCommandEvent& event);
-
-	std::vector<std::string> get_students();
+    InstructorFrame(const wxString& title);
 
 private:
-	std::vector<std::string> student_vector;
-	std::vector<std::string> assignment_vector;
+    wxListBox* m_studentsListBox;
+    wxListBox* m_assignmentsListBox;
+    wxArrayString studentUsernames;
+    std::unordered_map<wxString, User> studentsMap;
+    std::unordered_map<wxString, User> assignmentsMap;
 
-	wxListBox* assignment_list;
-	wxListBox* student_list;
+    void load_students();
+    void load_assignments();
 
-	void update_assignments();
-	void update_students_for_assignment(const std::string& assignment_name);
 
+    void OnViewStudents(wxCommandEvent& event) {
+        // Implement view students functionality
+    }
+
+    void OnCreateAssignment(wxCommandEvent& event) {
+        // Implement create assignment functionality
+    }
 };
-
-
-
-#endif

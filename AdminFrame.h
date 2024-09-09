@@ -1,28 +1,30 @@
-
-#ifndef ADMINFRAME_H
-#define ADMINFRAME_H
-
+#pragma once
 #include <wx/wx.h>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <unordered_map>
 #include <vector>
+#include "User.h"
+#include "Util.h"
 
 using json = nlohmann::json;
 
 class AdminFrame : public wxFrame {
 public:
-    AdminFrame(const wxString& title);
+    AdminFrame(const wxString& title, User adminUser);
 
-    std::vector<std::string> get_users();
+    void load_users();
 
-    void createUser(std::string username, std::string role, std::string password);
-    void deleteUser(std::string username);
+    void createUser(const std::string& username, const std::string& role, const std::string& password);
+    void deleteUser(const std::string& username);
     void onCreateUser(wxCommandEvent& event);
     void onDeleteUser(wxCommandEvent& event);
 
 private:
-    std::vector<std::string> usersVector;
-    wxListBox* userList;
-};
+    void OnClose(wxCloseEvent& event);
 
-#endif // ADMINFRAME_H
+    std::unordered_map<wxString, User> usersMap;
+    User currentUser;
+    wxListBox* userList;
+    wxArrayString wxUserArray;
+};
