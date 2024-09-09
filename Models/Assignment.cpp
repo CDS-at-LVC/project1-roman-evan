@@ -86,7 +86,7 @@ void to_json(json& j, const Assignment& model) {
 
 void from_json(const json& j, Assignment& model) {
     // Ensure the required fields are present before accessing
-    if (j.contains("id") && j.contains("name") && j.contains("due_date") && j.contains("tests")) {
+    if (j.contains("id") && j.contains("due_date") && j.contains("tests")) {
         j.at("id").get_to(model.assignment_id);
         j.at("due_date").get_to(model.due_date);
 

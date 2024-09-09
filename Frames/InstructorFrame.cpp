@@ -6,6 +6,7 @@ InstructorFrame::InstructorFrame(const wxString& title)
     wxPanel* panel = new wxPanel(this);
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     
+    Bind(wxEVT_CLOSE_WINDOW, &InstructorFrame::OnClose, this);
 
     load_students();
     get_keys(studentsMap, studentUsernames);
@@ -40,8 +41,6 @@ InstructorFrame::InstructorFrame(const wxString& title)
 
     // Add notebook to main sizer
     mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
-  
-    Bind(wxEVT_CLOSE_WINDOW, &InstructorFrame::OnClose, this);
 
     panel->SetSizer(mainSizer);
 
@@ -156,7 +155,10 @@ void InstructorFrame::OnClose(wxCloseEvent& event)
 {
     // Convert the usersMap (or your data structure) back to JSON
 
-    if (assignmentsMap.empty()) return;
+    if (assignmentsMap.empty()) {
+        event.Skip();
+        return;
+    }
 
     json j_users = json::array();
 
