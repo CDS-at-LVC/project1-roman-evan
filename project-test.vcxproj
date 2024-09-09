@@ -133,6 +133,7 @@
     <ClCompile Include="InstructorFrame.cpp" />
     <ClCompile Include="LoginFrame.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="AddAssignmentFrame.cpp" />
     <ClCompile Include="Submission.cpp" />
     <ClCompile Include="User.cpp" />
   </ItemGroup>
@@ -148,11 +149,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AddAssignmentFrame.h" />
     <ClInclude Include="AdminFrame.h" />
     <ClInclude Include="Assignment.h" />
     <ClInclude Include="InstructorFrame.h" />
     <ClInclude Include="LoginFrame.h" />
     <ClInclude Include="Submission.h" />
+    <ClInclude Include="SubmitFrame.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>

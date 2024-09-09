@@ -9,6 +9,10 @@
 #include <wx/aui/auibook.h>
 #include "User.h"
 #include "Util.h"
+#include "Assignment.h"
+#include <wx/wx.h>
+#include <wx/filepicker.h>
+#include "AddAssignmentFrame.h"
 
 using json = nlohmann::json;
 
@@ -22,7 +26,7 @@ private:
     wxListBox* m_assignmentsListBox;
     wxArrayString studentUsernames;
     std::unordered_map<wxString, User> studentsMap;
-    std::unordered_map<wxString, User> assignmentsMap;
+    std::unordered_map<std::string, Assignment> assignmentsMap;
 
     void load_students();
     void load_assignments();
@@ -32,7 +36,8 @@ private:
         // Implement view students functionality
     }
 
-    void OnCreateAssignment(wxCommandEvent& event) {
-        // Implement create assignment functionality
-    }
+    void OnCreateAssignment(wxCommandEvent& event);
+    void onDeleteAssignment(wxCommandEvent& event);
+
+    void save_assignments_to_file(); // Helper function, makes it easier to save changes to JSON 
 };
