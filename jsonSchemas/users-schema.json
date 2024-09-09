@@ -18,14 +18,6 @@
         "username": "user2"
     },
     {
-        "completed": [
-            "assignment_ids"
-        ],
-        "password": "password",
-        "role": "student",
-        "username": "usrn4m3"
-    },
-    {
         "completed": [],
         "password": "12345",
         "role": "student",
