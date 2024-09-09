@@ -129,11 +129,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="AdminFrame.cpp" />
-    <ClCompile Include="LoginFrame.cpp" />
-    <ClCompile Include="InstructorFrame.cpp" />
-    <ClCompile Include="Assignment.cpp" />
-    <ClCompile Include="Submission.cpp" />
+    <ClCompile Include="Models\User.cpp" />
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc" />
@@ -146,12 +143,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AdminFrame.h" />
-    <ClInclude Include="Assignment.h" />
-    <ClInclude Include="Submission.h" />
-    <ClInclude Include="InstructorFrame.h" />
-    <ClInclude Include="StudentFrame.h" />
-    <ClInclude Include="LoginFrame.h" />
+    <ClInclude Include="Frames\AdminFrame.h" />
+    <ClInclude Include="Frames\LoginFrame.h" />
+    <ClInclude Include="Frames\InstructorFrame.h" />
+    <ClInclude Include="Frames\SubmitFrame.h" />
+    <ClInclude Include="Models\User.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Util\Util.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="assignment-schema2.json">
