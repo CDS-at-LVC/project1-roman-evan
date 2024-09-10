@@ -1,9 +1,10 @@
 #pragma once
-
 #include <wx/wx.h>
 #include <wx/filepicker.h>
 #include <wx/listctrl.h>
 #include <vector>
+#include <wx/datectrl.h>
+#include <wx/timectrl.h>
 #include <wx/filedlg.h>
 
 class AddAssignmentFrame : public wxDialog
@@ -12,9 +13,7 @@ public:
     AddAssignmentFrame(wxWindow* parent);
 
     std::string GetAssignmentID() const;
-    std::string GetAssignmentName() const;
     std::string GetDueDate() const;
-    std::vector<std::string> GetFiles(bool isInputFiles) const;
     std::vector<std::string> GetInputFiles() const;
     std::vector<std::string> GetOutputFiles() const;
 
@@ -23,10 +22,8 @@ private:
     void OnCancel(wxCommandEvent& event);
 
     wxTextCtrl* m_idTextCtrl;
-    wxTextCtrl* m_nameTextCtrl;
-    wxTextCtrl* m_dueDateTextCtrl;
-    wxFilePickerCtrl* m_inputFilesPicker;
-    wxFilePickerCtrl* m_outputFilesPicker;
+    wxDatePickerCtrl* m_dueDatePicker;
+    wxTimePickerCtrl* m_dueTimePicker;
 
     std::vector<std::string> m_inputFiles;
     std::vector<std::string> m_outputFiles;

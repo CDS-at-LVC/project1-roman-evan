@@ -128,14 +128,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AdminFrame.cpp" />
-    <ClCompile Include="Assignment.cpp" />
-    <ClCompile Include="InstructorFrame.cpp" />
-    <ClCompile Include="LoginFrame.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="AddAssignmentFrame.cpp" />
-    <ClCompile Include="Submission.cpp" />
-    <ClCompile Include="User.cpp" />
+    <ClCompile Include="Source Files\AdminFrame.cpp" />
+    <ClCompile Include="Source Files\Assignment.cpp" />
+    <ClCompile Include="Source Files\InstructorFrame.cpp" />
+    <ClCompile Include="Source Files\LoginFrame.cpp" />
+    <ClCompile Include="Source Files\main.cpp" />
+    <ClCompile Include="Source Files\AddAssignmentFrame.cpp" />
+    <ClCompile Include="Source Files\StudentFrame.cpp" />
+    <ClCompile Include="Source Files\Submission.cpp" />
+    <ClCompile Include="Source Files\User.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="project-test.rc" />
@@ -149,15 +150,16 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AddAssignmentFrame.h" />
-    <ClInclude Include="AdminFrame.h" />
-    <ClInclude Include="Assignment.h" />
-    <ClInclude Include="InstructorFrame.h" />
-    <ClInclude Include="LoginFrame.h" />
-    <ClInclude Include="Submission.h" />
-    <ClInclude Include="SubmitFrame.h" />
-    <ClInclude Include="User.h" />
-    <ClInclude Include="Util.h" />
+    <ClInclude Include="Header Files\AddAssignmentFrame.h" />
+    <ClInclude Include="Header Files\AdminFrame.h" />
+    <ClInclude Include="Header Files\Assignment.h" />
+    <ClInclude Include="Header Files\InstructorFrame.h" />
+    <ClInclude Include="Header Files\LoginFrame.h" />
+    <ClInclude Include="Header Files\StudentFrame.h" />
+    <ClInclude Include="Header Files\Submission.h" />
+    <ClInclude Include="Header Files\SubmitFrame.h" />
+    <ClInclude Include="Header Files\User.h" />
+    <ClInclude Include="Header Files\Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

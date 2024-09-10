@@ -7,11 +7,11 @@
 #include <vector>
 #include <wx/datectrl.h>
 #include <wx/aui/auibook.h>
+#include <filesystem>
+#include <iostream>
 #include "User.h"
-#include "Util.h"
 #include "Assignment.h"
-#include <wx/wx.h>
-#include <wx/filepicker.h>
+#include "Util.h"
 #include "AddAssignmentFrame.h"
 
 using json = nlohmann::json;
@@ -25,19 +25,17 @@ private:
     wxListBox* m_studentsListBox;
     wxListBox* m_assignmentsListBox;
     wxArrayString studentUsernames;
+    wxArrayString assignmentsArray;
     std::unordered_map<wxString, User> studentsMap;
-    std::unordered_map<std::string, Assignment> assignmentsMap;
+    std::unordered_map<wxString, Assignment> assignmentsMap;
 
     void load_students();
     void load_assignments();
 
+    void OnAddAssignment(wxCommandEvent& event);
+    void OnClose(wxCloseEvent& event);
 
-    void OnViewStudents(wxCommandEvent& event) {
-        // Implement view students functionality
-    }
+    //void OnViewStudents(wxCommandEvent& event);
 
-    void OnCreateAssignment(wxCommandEvent& event);
-    void onDeleteAssignment(wxCommandEvent& event);
-
-    void save_assignments_to_file(); // Helper function, makes it easier to save changes to JSON 
+    //void OnCreateAssignment(wxCommandEvent& event);
 };

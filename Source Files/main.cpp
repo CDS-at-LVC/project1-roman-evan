@@ -1,5 +1,5 @@
 #include <wx/wx.h>
-#include "LoginFrame.h"
+#include "../Header Files/LoginFrame.h"
 #define _CRT_SECURE_NO_WARNINGS
 
 

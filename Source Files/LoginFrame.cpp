@@ -1,7 +1,7 @@
-#include "LoginFrame.h"
-#include "AdminFrame.h"
-#include "InstructorFrame.h"
-#include "User.h"
+#include "../Header Files/LoginFrame.h"
+#include "../Header Files/AdminFrame.h"
+#include "../Header Files/InstructorFrame.h"
+#include "../Header Files/User.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 

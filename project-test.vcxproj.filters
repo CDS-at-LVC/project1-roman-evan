@@ -15,22 +15,31 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Source Files\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AdminFrame.cpp">
+    <ClCompile Include="Source Files\AdminFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoginFrame.cpp">
+    <ClCompile Include="Source Files\LoginFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InstructorFrame.cpp">
+    <ClCompile Include="Source Files\InstructorFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Assignment.cpp">
+    <ClCompile Include="Source Files\Assignment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Submission.cpp">
+    <ClCompile Include="Source Files\Submission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\AddAssignmentFrame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\User.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source Files\StudentFrame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,28 +58,38 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="assignment-schema.json" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LoginFrame.h">
+    <ClInclude Include="Header Files\LoginFrame.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="AdminFrame.h">
+    <ClInclude Include="Header Files\AdminFrame.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="InstructorFrame.h">
+    <ClInclude Include="Header Files\InstructorFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StudentFrame.h">
+    <ClInclude Include="Header Files\Assignment.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\Submission.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\AddAssignmentFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Assignment.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Header Files\SubmitFrame.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Submission.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="Header Files\User.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="assignment-schema2.json" />
+    <ClInclude Include="Header Files\Util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header Files\StudentFrame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
