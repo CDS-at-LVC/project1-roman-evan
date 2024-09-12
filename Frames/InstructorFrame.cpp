@@ -21,9 +21,9 @@ InstructorFrame::InstructorFrame(const wxString& title)
     wxPanel* studentsPanel = new wxPanel(notebook);
     wxBoxSizer* studentsSizer = new wxBoxSizer(wxVERTICAL);
     m_studentsListBox = new wxListBox(studentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, studentUsernames, wxLB_SINGLE | wxBORDER_SIMPLE);
-    wxButton* refreshBtn = new wxButton(studentsPanel, wxID_ANY, "Get Student Report");
+    wxButton* studentReportBtn = new wxButton(studentsPanel, wxID_ANY, "Get Student Report");
     studentsSizer->Add(m_studentsListBox, 1, wxEXPAND | wxALL, 5);
-    studentsSizer->Add(refreshBtn, 0, wxEXPAND | wxALL, 5);
+    studentsSizer->Add(studentReportBtn, 0, wxEXPAND | wxALL, 5);
     studentsPanel->SetSizer(studentsSizer);
 
     // Create second tab for assignments
@@ -47,7 +47,7 @@ InstructorFrame::InstructorFrame(const wxString& title)
     panel->SetSizer(mainSizer);
 
     // Bind event handlers
-    //refreshBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnRefresh, this);
+    studentReportBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnGetStudentReport, this);
     addAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnAddAssignment, this);
     deleteAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnDeleteAssignment, this);
 }
@@ -182,9 +182,72 @@ void InstructorFrame::OnClose(wxCloseEvent& event)
     }
 }
 
+void InstructorFrame::load_submissions()
+{
+    std::ifstream file("jsonSchemas/submissions-schema.json");
+
+    if (!file.is_open()) {
+        wxMessageBox("Failed to open submission-schema.json", "Error ", wxOK | wxICON_ERROR);
+        return;
+    }
+
+    json submissions;
+    file >> submissions;
+
+    submissionsMap.clear();
+
+    for (const auto& submission : submissions) {
+        std::string username = submission["username"];
+        std::string assignment_id = submission["assignment_id"];
+
+        submissionsMap[username][assignment_id] = submission;
+    }
+
+    file.close();
+}
+
 void InstructorFrame::OnGetStudentReport(wxCommandEvent& event)
 {
+    int selectedIndex = m_studentsListBox->GetSelection();
+    if (selectedIndex == wxNOT_FOUND)
+    {
+        wxMessageBox("Please select a student.", "No Student Selected", wxOK | wxICON_INFORMATION);
+        return;
+    }
 
+    wxString selectedStudent = m_studentsListBox->GetString(selectedIndex);
+
+    // Load the latest submission data
+    load_submissions();
+
+    auto studentSubmissions = submissionsMap.find(selectedStudent.ToStdString());
+    if (studentSubmissions == submissionsMap.end() || studentSubmissions->second.empty())
+    {
+        wxMessageBox("No submissions found for this student.", "No Data", wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    std::stringstream report;
+    report << "Grade Report for " << selectedStudent << "\n\n";
+
+    for (const auto& [assignment_id, submission] : studentSubmissions->second)
+    {
+        report << "Assignment: " << assignment_id << "\n";
+        report << "Submission Time: " << submission["submission_time"].get<std::string>() << "\n";
+        report << "Accepted: " << (submission["accepted"].get<bool>() ? "Yes" : "No") << "\n";
+        report << "Passed: " << (submission["passed"].get<bool>() ? "Yes" : "No") << "\n";
+        report << "Tests Passed: " << submission["tests_passed"].get<int>() << " / " << submission["tests_total"].get<int>() << "\n";
+
+        double grade = (static_cast<double>(submission["tests_passed"].get<int>()) / submission["tests_total"].get<int>()) * 100;
+        report << "Grade: " << std::fixed << std::setprecision(2) << grade << "%\n\n";
+    }
+
+    // Display the report in a scrollable text dialog
+    wxTextEntryDialog dialog(this, "Student Report", "Grade Report",
+        report.str(),
+        wxOK | wxTE_MULTILINE | wxTE_READONLY | wxVSCROLL);
+    dialog.SetSize(400, 300);  // Set an appropriate size for the dialog
+    dialog.ShowModal();
 }
 
 void InstructorFrame::OnDeleteAssignment(wxCommandEvent& event) {

@@ -28,9 +28,12 @@ private:
     wxArrayString assignmentsArray;
     std::unordered_map<wxString, User> studentsMap;
     std::unordered_map<wxString, Assignment> assignmentsMap;
+    std::map<std::string, std::map<std::string, json>> submissionsMap;
+
 
     void load_students();
     void load_assignments();
+    void load_submissions();
 
     void OnAddAssignment(wxCommandEvent& event);
     void OnDeleteAssignment(wxCommandEvent& event);
