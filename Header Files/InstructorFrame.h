@@ -33,9 +33,8 @@ private:
     void load_assignments();
 
     void OnAddAssignment(wxCommandEvent& event);
+    void OnDeleteAssignment(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
-    //void OnViewStudents(wxCommandEvent& event);
-
-    //void OnCreateAssignment(wxCommandEvent& event);
+    void OnGetStudentReport(wxCommandEvent& event);
 };

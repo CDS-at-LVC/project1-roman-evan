@@ -1,20 +1,17 @@
 #include "../Header Files/Assignment.h"
-#include <iomanip>
-#include <sstream>
+
 
 Assignment::Assignment() {}
 
 Assignment::Assignment(const std::string& assignment_id,
-    const std::string& assignment_name,
     const std::string& due_date,
     std::vector<std::string> input_files,
     std::vector<std::string> output_files)
-    : assignment_id(assignment_id), assignment_name(assignment_name),
+    : assignment_id(assignment_id),
     due_date(due_date), input_files(input_files), output_files(output_files) {}
 
 Assignment::Assignment(Assignment&& other) noexcept
     : assignment_id(std::move(other.assignment_id)),
-    assignment_name(std::move(other.assignment_name)),
     due_date(std::move(other.due_date)),
     input_files(std::move(other.input_files)),
     output_files(std::move(other.output_files)) {}
@@ -22,7 +19,6 @@ Assignment::Assignment(Assignment&& other) noexcept
 Assignment& Assignment::operator=(Assignment&& other) noexcept {
     if (this != &other) {
         assignment_id = std::move(other.assignment_id);
-        assignment_name = std::move(other.assignment_name);
         due_date = std::move(other.due_date);
         input_files = std::move(other.input_files);
         output_files = std::move(other.output_files);
@@ -32,7 +28,6 @@ Assignment& Assignment::operator=(Assignment&& other) noexcept {
 
 Assignment::Assignment(const Assignment& other)
     : assignment_id(other.assignment_id),
-    assignment_name(other.assignment_name),
     due_date(other.due_date),
     input_files(other.input_files),
     output_files(other.output_files) {}
@@ -40,7 +35,6 @@ Assignment::Assignment(const Assignment& other)
 Assignment& Assignment::operator=(const Assignment& other) {
     if (this != &other) {
         assignment_id = other.assignment_id;
-        assignment_name = other.assignment_name;
         due_date = other.due_date;
         input_files = other.input_files;
         output_files = other.output_files;
@@ -60,10 +54,6 @@ std::string Assignment::get_assignment_id() const {
     return assignment_id;
 }
 
-std::string Assignment::get_assignment_name() const {
-    return assignment_name;
-}
-
 std::string Assignment::get_due_date() const {
     return due_date;
 }
@@ -79,7 +69,6 @@ std::vector<std::string> Assignment::get_outputs() const {
 void to_json(json& j, const Assignment& model) {
     j = json{
         {"id", model.assignment_id},
-        {"name", model.assignment_name},
         {"due_date", model.due_date},
         {"tests", json::object()}
     };
@@ -97,9 +86,8 @@ void to_json(json& j, const Assignment& model) {
 
 void from_json(const json& j, Assignment& model) {
     // Ensure the required fields are present before accessing
-    if (j.contains("id") && j.contains("name") && j.contains("due_date") && j.contains("tests")) {
+    if (j.contains("id") && j.contains("due_date") && j.contains("tests")) {
         j.at("id").get_to(model.assignment_id);
-        j.at("name").get_to(model.assignment_name);
         j.at("due_date").get_to(model.due_date);
 
         model.input_files.clear();

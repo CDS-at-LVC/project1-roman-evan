@@ -1,6 +1,7 @@
 #include "../Header Files/LoginFrame.h"
 #include "../Header Files/AdminFrame.h"
 #include "../Header Files/InstructorFrame.h"
+#include "../Header Files/StudentFrame.h"
 #include "../Header Files/User.h"
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -34,7 +35,7 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
         return;
     }
 
-    std::ifstream file("users-schema.json");
+    std::ifstream file("jsonSchemas/users-schema.json");
     if (!file.is_open()) {
         wxMessageBox("Failed to open users-schema.json", "Error", wxOK | wxICON_ERROR);
         return;
@@ -70,9 +71,9 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
     {
         frame = new InstructorFrame(wxT("Instructor Dashboard"));
     }
-    else {
-        wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
-        return;
+    else if (role == "student")
+    {
+        frame = new StudentFrame(wxT("Student Dasboard"), std::move(current_user));
     }
 
     if (frame)

@@ -14,19 +14,5 @@
             "input1.txt": "output1.txt",
             "input2.txt": "output2.txt"
         }
-    },
-    {
-        "due_date": "2024-09-17T17:09:00",
-        "id": "Test01",
-        "tests": {
-            "input1.txt": "input2.txt"
-        }
-    },
-    {
-        "due_date": "2024-10-12T15:10:00",
-        "id": "Test02",
-        "tests": {
-            "input2.txt": "output1.txt"
-        }
     }
 ]

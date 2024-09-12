@@ -1,5 +1,4 @@
 #pragma once
-
 #include <iomanip>
 #include <sstream>
 #include <nlohmann/json.hpp>
@@ -12,7 +11,6 @@ public:
     Submission();
 
     Submission(const std::string& assignment_id,
-        const std::string& assignment_name,
         const std::string& username,
         bool accepted,
         bool passed,
@@ -32,7 +30,6 @@ public:
     bool operator!=(const Submission& other) const;
 
     std::string get_assignment_id() const;
-    std::string get_assignment_name() const;
     std::string get_username() const;
     bool get_accepted() const;
     bool get_passed() const;
@@ -45,7 +42,6 @@ public:
 
 private:
     std::string assignment_id;
-    std::string assignment_name;
     std::string username;
     bool accepted;
     bool passed;

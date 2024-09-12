@@ -1,3 +1,4 @@
+#pragma once
 #include <iomanip>
 #include <sstream>
 #include <nlohmann/json.hpp>
@@ -9,7 +10,6 @@ public:
     Assignment();
 
     Assignment(const std::string& assignment_id,
-        const std::string& assignment_name,
         const std::string& due_date,
         std::vector<std::string> input_files,
         std::vector<std::string> output_files);
@@ -29,7 +29,6 @@ public:
 
 
     std::string get_assignment_id() const;
-    std::string get_assignment_name() const;
 
     std::string get_due_date() const;
 
@@ -41,10 +40,8 @@ public:
     void friend from_json(const json& j, Assignment& model);
 private:
     std::string assignment_id;
-    std::string assignment_name;
     std::string due_date;
     std::vector<std::string> input_files;
     std::vector<std::string> output_files;
 
 };
-

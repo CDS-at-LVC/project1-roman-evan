@@ -31,8 +31,10 @@ InstructorFrame::InstructorFrame(const wxString& title)
     wxBoxSizer* assignmentsSizer = new wxBoxSizer(wxVERTICAL);
     m_assignmentsListBox = new wxListBox(assignmentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, assignmentsArray, wxLB_SINGLE | wxBORDER_SIMPLE);
     wxButton* addAssignmentBtn = new wxButton(assignmentsPanel, wxID_ANY, "Add Assignment");
+    wxButton* deleteAssignmentBtn = new wxButton(assignmentsPanel, wxID_ANY, "Remove Assignment");
     assignmentsSizer->Add(m_assignmentsListBox, 1, wxEXPAND | wxALL, 5);
     assignmentsSizer->Add(addAssignmentBtn, 0, wxEXPAND | wxALL, 5);
+    assignmentsSizer->Add(deleteAssignmentBtn, 0, wxEXPAND | wxALL, 5);
     assignmentsPanel->SetSizer(assignmentsSizer);
 
     // Add tabs to notebook
@@ -47,11 +49,12 @@ InstructorFrame::InstructorFrame(const wxString& title)
     // Bind event handlers
     //refreshBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnRefresh, this);
     addAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnAddAssignment, this);
+    deleteAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnDeleteAssignment, this);
 }
 
 void InstructorFrame::load_students()
 {
-    std::ifstream file("users-schema.json");
+    std::ifstream file("jsonSchemas/users-schema.json");
 
     if (!file.is_open()) {
         wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
@@ -73,7 +76,7 @@ void InstructorFrame::load_students()
 
 void InstructorFrame::load_assignments()
 {
-    std::ifstream file("assignment-schema.json");
+    std::ifstream file("jsonSchemas/assignment-schema.json");
 
     if (!file.is_open()) {
         wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
@@ -139,7 +142,6 @@ void InstructorFrame::OnAddAssignment(wxCommandEvent& event) {
 
         }
 
-
         assignmentsMap[assignmentID] = Assignment(assignmentID, dueDate, inputFiles, outputFiles);
 
         assignmentsArray.Add(assignmentID);
@@ -166,7 +168,7 @@ void InstructorFrame::OnClose(wxCloseEvent& event)
         j_users.push_back(pair.second);
 
         // Write the JSON to the file
-        std::ofstream file("assignment-schema.json");
+        std::ofstream file("jsonSchemas/assignment-schema.json");
         if (file.is_open()) {
             file << j_users.dump(4);  // Dump the JSON with 4-space indentation
             file.close();
@@ -177,5 +179,79 @@ void InstructorFrame::OnClose(wxCloseEvent& event)
 
         // Continue with the default close behavior
         event.Skip();  // Ensures the window will actually close
+    }
+}
+
+void InstructorFrame::OnGetStudentReport(wxCommandEvent& event)
+{
+
+}
+
+void InstructorFrame::OnDeleteAssignment(wxCommandEvent& event) {
+    // Gets assignment from list box
+    int selectedIndex = m_assignmentsListBox->GetSelection();
+    if (selectedIndex == wxNOT_FOUND)
+    {
+        wxMessageBox("Please select an assignment to delete.", "No Assignment Selected", wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    wxString selectedAssignmentId = m_assignmentsListBox->GetString(selectedIndex);
+
+    // Confirmation for deletion
+    wxMessageDialog confirmDialog(this,
+        wxString::Format("Are you sure you want to delete the assignment '%s'?", selectedAssignmentId),
+        "Confirm Deletion",
+        wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+
+
+    if (confirmDialog.ShowModal() == wxID_YES)
+    {
+        // Remove assignment from the map
+        auto it = assignmentsMap.find(selectedAssignmentId.ToStdString());
+        if (it != assignmentsMap.end())
+        {
+            // Delete input and output files
+            std::filesystem::path inputPath = std::filesystem::current_path() / "inputs" / selectedAssignmentId.ToStdString();
+            std::filesystem::path outputPath = std::filesystem::current_path() / "outputs" / selectedAssignmentId.ToStdString();
+
+            try
+            {
+                std::filesystem::remove_all(inputPath);
+                std::filesystem::remove_all(outputPath);
+            }
+            catch (const std::filesystem::filesystem_error& e)
+            {
+                wxMessageBox(wxString::Format("Error deleting files: %s", e.what()), "File Deletion Error", wxOK | wxICON_ERROR);
+            }
+
+            // Remove the assignment from the map and update the listbox
+            assignmentsMap.erase(it);
+            assignmentsArray.Remove(selectedAssignmentId);
+            m_assignmentsListBox->Set(assignmentsArray);
+
+            // Update the JSON file
+            json j_assignments = json::array();
+            for (const auto& pair : assignmentsMap)
+            {
+                j_assignments.push_back(pair.second);
+            }
+
+            std::ofstream file("jsonSchemas/assignment-schema.json");
+            if (file.is_open())
+            {
+                file << j_assignments.dump(4);
+                file.close();
+                wxMessageBox("Assignment deleted successfully.", "Success", wxOK | wxICON_INFORMATION);
+            }
+            else
+            {
+                wxMessageBox("Failed to update assignment data file.", "Error", wxOK | wxICON_ERROR);
+            }
+        }
+        else
+        {
+            wxMessageBox("Assignment not found in the map.", "Error", wxOK | wxICON_ERROR);
+        }
     }
 }

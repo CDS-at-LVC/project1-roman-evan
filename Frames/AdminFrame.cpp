@@ -60,7 +60,7 @@ void AdminFrame::OnClose(wxCloseEvent& event)
 		j_users.push_back(pair.second);
 
 		// Write the JSON to the file
-		std::ofstream file("users-schema.json");
+		std::ofstream file("jsonSchemas/users-schema.json");
 		if (file.is_open()) {
 			file << j_users.dump(4);  // Dump the JSON with 4-space indentation
 			file.close();
@@ -76,7 +76,7 @@ void AdminFrame::OnClose(wxCloseEvent& event)
 
 
 void AdminFrame::load_users() {
-	std::ifstream file("users-schema.json");
+	std::ifstream file("jsonSchemas/users-schema.json");
 
 	if (!file.is_open()) {
 		wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
