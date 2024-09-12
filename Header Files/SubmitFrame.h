@@ -11,6 +11,7 @@
 #include <wx/txtstrm.h>
 #include <sstream>
 #include <algorithm>
+#include "../Header Files/TestExecutable.h"
 
 
 class MyFrame : public wxFrame
@@ -43,7 +44,7 @@ private:
 
 	}
 
-	bool TestExecutable(const std::string& execName,
+	/*bool friend TestExecutable(const std::string& execName,
 		const std::string& inputPath,
 		const std::string& outputPath)
 	{
@@ -99,7 +100,7 @@ private:
 		}
 
 
-	}
+	}*/
 
 	void OnCompileAndRun(wxCommandEvent& event)
 	{

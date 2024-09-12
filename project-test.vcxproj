@@ -134,6 +134,7 @@
     <ClCompile Include="Models\Assignment.cpp" />
     <ClCompile Include="Frames\InstructorFrame.cpp" />
     <ClCompile Include="Frames\LoginFrame.cpp" />
+    <ClCompile Include="Models\TestExecutable.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Frames\AddAssignmentFrame.cpp" />
     <ClCompile Include="Models\Submission.cpp" />

@@ -48,7 +48,7 @@ private:
 
 	void UpdateSubmissionsList();
 	void SaveSubmissions();
-	//void onRefresh(wxCloseEvent& event);
+	void UpdateSubmissionsGrid();
 
 	void onGetGradeReport(wxCommandEvent& event);
 	void onGetIncompleteAssignments(wxCommandEvent& event);

@@ -1,4 +1,6 @@
 #include "../Header Files/StudentFrame.h"
+#include "../Header Files/SubmitFrame.h"
+#include "../Header Files/TestExecutable.h"
 
 StudentFrame::StudentFrame(const wxString& title, User studentUser)
 	: wxFrame(nullptr, wxID_ANY, "Student Dashboard", wxDefaultPosition, wxSize(500, 400))
@@ -70,8 +72,6 @@ StudentFrame::StudentFrame(const wxString& title, User studentUser)
 
 	mainSizer->Add(notebook, 1, wxEXPAND | wxALL, 5);
 	panel->SetSizer(mainSizer);
-
-
 
 	// Bind Event Handlers
 	m_assignmentsGrid->Bind(wxEVT_GRID_SELECT_CELL, &StudentFrame::OnGridSelect, this);
@@ -167,7 +167,6 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 		return;
 	}
 
-	// Get all items from the selected row
 	wxString selectedAssignmentName = m_assignmentsGrid->GetCellValue(selectedRow, 0);
 	Assignment& selectedAssignment = assignmentMap[selectedAssignmentName.ToStdString()];
 
@@ -183,40 +182,69 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 
 	// Open file dialog for selecting submission file
 	wxFileDialog submissionDialog(this, "Choose Submission File", "", "",
-		"Text files (*.cpp)|*.cpp",
+		"C++ files (*.cpp)|*.cpp",
 		wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 
 	if (submissionDialog.ShowModal() == wxID_CANCEL) {
 		return;  // User cancelled the file dialog
 	}
 
-	// Get the selected file path
 	wxString filePath = submissionDialog.GetPath();
 
-	// TODO: Implement file copying logic here
-	// For now, we'll just create a submission object
+	// Compile the submitted file
+	wxString outputFile = "submission.exe";
+	wxString compileCommand = "g++ \"" + filePath + "\" -o " + outputFile;
 
-	// Create a new submission object
+	int compileResult = wxExecute(compileCommand, wxEXEC_SYNC);
+	if (compileResult != 0) {
+		wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
+		return;
+	}
+
+	// Run tests
+	int testsPassed = 0;
+	int totalTests = selectedAssignment.get_inputs().size();
+	bool allTestsPassed = true;
+
+	for (size_t i = 0; i < totalTests; ++i) {
+		std::string inputPath = selectedAssignment.get_inputs()[i];
+		std::string outputPath = selectedAssignment.get_outputs()[i];
+
+		if (TestExecutable(outputFile.ToStdString(), inputPath, outputPath)) {
+			testsPassed++;
+		}
+		else {
+			allTestsPassed = false;
+		}
+	}
+
+	// Calculate grade
+	double grade = (testsPassed * 100.0) / totalTests;
+
+	// Create or update submission
 	Submission newSubmission(
 		selectedAssignment.get_assignment_id(),
-		"current_username",  // TODO: Replace with actual username
+		currentUser.get_username(),
 		true,  // accepted
-		false,  // passed (to be determined after grading)
-		0,  // tests_passed (to be determined after grading)
-		selectedAssignment.get_inputs().size(),  // total_tests
-		now.FormatISOCombined().ToStdString()  // submission_time
+		allTestsPassed,
+		testsPassed,
+		totalTests,
+		now.FormatISOCombined().ToStdString()
 	);
 
 	// Update or add the submission to the submissionMap
 	submissionMap[selectedAssignment.get_assignment_id()] = std::move(newSubmission);
 
-	// Update the submissions list box
-	UpdateSubmissionsList();
+	// Update the submissions grid
+	UpdateSubmissionsGrid();
 
 	// Save the updated submissions to file
 	SaveSubmissions();
 
-	wxMessageBox("Assignment submitted successfully!", "Submission", wxOK | wxICON_INFORMATION);
+	// Delete the compiled executable
+	remove(outputFile.ToStdString().c_str());
+
+	wxMessageBox(wxString::Format("Assignment submitted successfully!\nGrade: %.2f%%", grade), "Submission", wxOK | wxICON_INFORMATION);
 }
 
 void StudentFrame::UpdateSubmissionsList() {
@@ -225,6 +253,29 @@ void StudentFrame::UpdateSubmissionsList() {
 		studentSubmissions.Add(wxString(pair.first));
 	}
 	m_submittedListBox->Set(studentSubmissions);
+}
+
+void StudentFrame::UpdateSubmissionsGrid() {
+	if (m_submissionsGrid) {
+		m_submissionsGrid->ClearGrid();
+		if (m_submissionsGrid->GetNumberRows() > 0) {
+			m_submissionsGrid->DeleteRows(0, m_submissionsGrid->GetNumberRows());
+		}
+		m_submissionsGrid->AppendRows(submissionMap.size());
+
+		int row = 0;
+		for (const auto& pair : submissionMap) {
+			const Submission& submission = pair.second;
+			m_submissionsGrid->SetCellValue(row, 0, submission.get_assignment_id());
+			m_submissionsGrid->SetCellValue(row, 1, submission.get_accepted() ? "Yes" : "No");
+			m_submissionsGrid->SetCellValue(row, 2, submission.get_passed() ? "Yes" : "No");
+			m_submissionsGrid->SetCellValue(row, 3, std::to_string(submission.get_tests_passed()));
+			m_submissionsGrid->SetCellValue(row, 4, std::to_string(submission.get_total_tests()));
+			m_submissionsGrid->SetCellValue(row, 5, submission.get_submission_time());
+			row++;
+		}
+		m_submissionsGrid->AutoSize();
+	}
 }
 
 void StudentFrame::SaveSubmissions() {
