@@ -136,6 +136,8 @@
     <ClCompile Include="Frames\InstructorFrame.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Models\User.cpp" />
+    <ClCompile Include="Models\Submission.cpp" />
+    <ClCompile Include="Frames\StudentFrame.cpp" />
     <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -156,6 +158,8 @@
     <ClInclude Include="Frames\SubmitFrame.h" />
     <ClInclude Include="Models\User.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Models\Submission.h" />
+    <ClInclude Include="Frames\StudentFrame.h" />
     <ClInclude Include="Util\Util.h" />
   </ItemGroup>
   <ItemGroup>

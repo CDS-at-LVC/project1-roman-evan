@@ -180,3 +180,8 @@ void InstructorFrame::OnClose(wxCloseEvent& event)
         event.Skip();  // Ensures the window will actually close
     }
 }
+
+void InstructorFrame::OnGetStudentReport(wxCommandEvent& event)
+{
+
+}

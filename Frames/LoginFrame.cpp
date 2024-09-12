@@ -2,6 +2,7 @@
 #include "AdminFrame.h"
 #include "InstructorFrame.h"
 #include "../Models/User.h"
+#include "StudentFrame.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -70,9 +71,9 @@ void LoginFrame::OnLogin(wxCommandEvent& event)
     {
         frame = new InstructorFrame(wxT("Instructor Dashboard"));
     }
-    else {
-        wxMessageBox("Login successful", "Info", wxOK | wxICON_INFORMATION);
-        return;
+    else if (role == "student") 
+    {
+        frame = new StudentFrame(wxT("Student Dasboard"), std::move(current_user));
     }
 
     if (frame)

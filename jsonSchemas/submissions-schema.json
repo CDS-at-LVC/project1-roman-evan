@@ -1,7 +1,7 @@
 [
   {
     "assignment_id": "unique_id",
-    "user": "username",
+    "username": "username",
     "accepted": true,
     "passed": true,
     "tests_passed": 7,

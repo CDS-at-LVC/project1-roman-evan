@@ -35,7 +35,5 @@ private:
     void OnAddAssignment(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
 
-    //void OnViewStudents(wxCommandEvent& event);
-
-    //void OnCreateAssignment(wxCommandEvent& event);
+    void OnGetStudentReport(wxCommandEvent& event);
 };

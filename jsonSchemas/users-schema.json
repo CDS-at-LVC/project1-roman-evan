@@ -25,6 +25,12 @@
     },
     {
         "completed": [],
+        "password": "1234",
+        "role": "student",
+        "username": "roman_stud"
+    },
+    {
+        "completed": [],
         "password": "12345",
         "role": "student",
         "username": "bubba"
