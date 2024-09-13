@@ -131,8 +131,10 @@ void StudentFrame::load_submissions() {
 	file >> submissions;
 
 	for (const auto& submission : submissions) {
-		auto new_submission = submission.get<Submission>();
-		submissionMap[new_submission.get_id()] = std::move(new_submission);
+		if (submission["username"] == currentUser.get_username()) {
+			auto new_submission = submission.get<Submission>();
+			submissionMap[new_submission.get_id()] = std::move(new_submission);
+		}
 	}
 
 	file.close();
@@ -142,7 +144,7 @@ void StudentFrame::load_submissions() {
 		if (m_submissionsGrid->GetNumberRows() > 0) {
 			m_submissionsGrid->DeleteRows(0, m_submissionsGrid->GetNumberRows());
 		}
-		m_submissionsGrid->AppendRows(assignmentMap.size());
+		m_submissionsGrid->AppendRows(submissionMap.size());
 
 		int row = 0;
 		for (const auto& pair : submissionMap) {
