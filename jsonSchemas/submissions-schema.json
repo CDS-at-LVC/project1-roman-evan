@@ -1,11 +1,20 @@
 [
-  {
-    "assignment_id": "unique_id",
-    "username": "username",
-    "accepted": true,
-    "passed": true,
-    "tests_passed": 7,
-    "tests_total": 7,
-    "submission_time": "01/01/2024"
-  }
+    {
+        "accepted": true,
+        "assignment_id": "unique_id",
+        "passed": true,
+        "submission_time": "01/01/2024",
+        "tests_passed": 7,
+        "tests_total": 7,
+        "username": "username"
+    },
+    {
+        "accepted": true,
+        "assignment_id": "new-assignment",
+        "passed": false,
+        "submission_time": "2024-09-13T11:57:07",
+        "tests_passed": 2,
+        "tests_total": 2,
+        "username": "evan"
+    }
 ]

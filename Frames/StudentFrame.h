@@ -16,11 +16,17 @@
 #include <wx/datetime.h>
 #include <sstream>
 #include <iomanip>
+#include <wx/process.h>
+#include <wx/wfstream.h> 
+#include <cstdio>
+#include <wx/txtstrm.h>
+#include <algorithm>
 #include "../Models/User.h"
 #include "../Models/Assignment.h"
 #include "../Models/Submission.h"
 #include "../Util/Util.h"
 #include "AddAssignmentFrame.h"
+
 
 
 using json = nlohmann::json;
@@ -31,8 +37,8 @@ public:
 
 private:
 	User currentUser;
-	wxListBox* m_submittedListBox;
-	wxListBox* m_assignmentsListBox;
+	//wxListBox* m_submittedListBox;
+	//wxListBox* m_assignmentsListBox;
 	wxArrayString studentAssignments;
 	wxArrayString studentSubmissions;
 	wxGrid* m_assignmentsGrid;
@@ -53,6 +59,10 @@ private:
 	void onGetGradeReport(wxCommandEvent& event);
 	void onGetIncompleteAssignments(wxCommandEvent& event);
 	void OnGridSelect(wxGridEvent& event);
+	bool TestExecutable(const std::string& execName,
+		const std::string& inputPath,
+		const std::string& outputPath);
+
 
 	void SetGridColumnWidths(wxGrid* grid, int ncol = 2);
 
