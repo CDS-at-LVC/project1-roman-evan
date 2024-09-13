@@ -1,8 +1,11 @@
 #include "Submission.h"
 
-Submission::Submission() {}
+Submission::Submission() 
+{
+}
 
 Submission::Submission(const std::string& assignment_id,
+    const std::string& submission_id,
     const std::string& username,
     bool accepted,
     bool passed,
@@ -10,15 +13,20 @@ Submission::Submission(const std::string& assignment_id,
     int total_tests,
     const std::string& submission_time)
     : assignment_id(assignment_id),
+    submission_id(submission_id),
     username(username),
     accepted(accepted),
     passed(passed),
     tests_passed(tests_passed),
     total_tests(total_tests),
-    submission_time(submission_time) {}
+    submission_time(submission_time) 
+{
+    
+}
 
 Submission::Submission(Submission&& other) noexcept
     : assignment_id(std::move(other.assignment_id)),
+    submission_id(std::move(other.submission_id)),
     username(std::move(other.username)),
     accepted(std::move(other.accepted)),
     passed(std::move(other.passed)),
@@ -29,6 +37,7 @@ Submission::Submission(Submission&& other) noexcept
 Submission& Submission::operator=(Submission&& other) noexcept {
     if (this != &other) {
         assignment_id = std::move(other.assignment_id);
+        submission_id = std::move(other.submission_id);
         username = std::move(other.username);
         accepted = std::move(other.accepted);
         passed = std::move(other.passed);
@@ -41,6 +50,7 @@ Submission& Submission::operator=(Submission&& other) noexcept {
 
 Submission::Submission(const Submission& other)
     : assignment_id(other.assignment_id),
+    submission_id(other.submission_id),
     username(other.username),
     accepted(other.accepted),
     passed(other.passed),
@@ -51,6 +61,7 @@ Submission::Submission(const Submission& other)
 Submission& Submission::operator=(const Submission& other) {
     if (this != &other) {
         assignment_id = other.assignment_id;
+        submission_id = other.submission_id;
         username = other.username;
         accepted = other.accepted;
         passed = other.passed;
@@ -85,6 +96,11 @@ bool Submission::get_passed() const {
     return passed;
 }
 
+std::string Submission::get_id() const
+{
+    return submission_id;
+}
+
 int Submission::get_tests_passed() const {
     return tests_passed;
 }
@@ -100,6 +116,7 @@ std::string Submission::get_submission_time() const {
 void to_json(json& j, const Submission& model) {
     j = json{
         {"assignment_id", model.assignment_id},
+        {"id", model.submission_id},
         {"username", model.username},
         {"accepted", model.accepted},
         {"passed", model.passed},
@@ -111,6 +128,7 @@ void to_json(json& j, const Submission& model) {
 
 void from_json(const json& j, Submission& model) {
     j.at("assignment_id").get_to(model.assignment_id);
+    j.at("id").get_to(model.submission_id);
     j.at("username").get_to(model.username);
     j.at("accepted").get_to(model.accepted);
     j.at("passed").get_to(model.passed);

@@ -17,7 +17,7 @@ void get_keys(const std::unordered_map<KeyType, ValueType>& map, wxArrayString& 
     }
 }
 
-std::string GenerateGUID()
+inline std::string GenerateGUID()
 {
     boost::uuids::uuid uuid = boost::uuids::random_generator()();
     return boost::uuids::to_string(uuid);

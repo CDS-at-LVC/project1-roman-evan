@@ -11,6 +11,7 @@ public:
     Submission();
 
     Submission(const std::string& assignment_id,
+    const std::string& submission_id,
         const std::string& username,
         bool accepted,
         bool passed,
@@ -33,6 +34,7 @@ public:
     std::string get_username() const;
     bool get_accepted() const;
     bool get_passed() const;
+    std::string get_id() const;
     int get_tests_passed() const;
     int get_total_tests() const;
     std::string get_submission_time() const;
@@ -42,6 +44,7 @@ public:
 
 private:
     std::string assignment_id;
+    std::string submission_id;
     std::string username;
     bool accepted;
     bool passed;

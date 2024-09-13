@@ -132,7 +132,7 @@ void StudentFrame::load_submissions() {
 
 	for (const auto& submission : submissions) {
 		auto new_submission = submission.get<Submission>();
-		submissionMap[new_submission.get_assignment_id()] = std::move(new_submission);
+		submissionMap[new_submission.get_id()] = std::move(new_submission);
 	}
 
 	file.close();
@@ -220,11 +220,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	}
 
 	isCompiled = true;
-	int testsPassed = 0;
-
-	// Set up a wxProcess for capturing output
-	wxProcess process;
-	process.Redirect(); 
+	int testsPassed = 0; 
 	// Redirect the process output (stdout and stderr)
 
 	//maybe separate compilation from actual testing
@@ -245,6 +241,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	remove(outputFile.ToStdString().c_str());
 	Submission newSubmission(
 		selectedAssignment.get_assignment_id(),
+		GenerateGUID(),
 		currentUser.get_username(),  // TODO: Replace with actual username
 		isCompiled,  // accepted
 		testsPassed == inputs.size(),  // passed (to be determined after grading)
@@ -252,7 +249,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 		inputs.size(),  // total_tests
 		now.FormatISOCombined().ToStdString()  // submission_time
 	);
-	submissionMap[selectedAssignment.get_assignment_id()] = std::move(newSubmission);
+	submissionMap[newSubmission.get_id()] = std::move(newSubmission);
 
 	// Update the submissions list box
 	UpdateSubmissionsList();
@@ -317,7 +314,7 @@ bool StudentFrame::TestExecutable(const std::string& execName,
 
 		return flag;
 	}
-
+	return false;
 }
 
 void StudentFrame::UpdateSubmissionsList() {
