@@ -9,15 +9,6 @@
         }
     },
     {
-        "active": false,
-        "due_date": "2024-09-09T10:48:00",
-        "id": "bubba123",
-        "tests": {
-            "output3.txt": "input3.txt",
-            "output4.txt": "input4.txt"
-        }
-    },
-    {
         "active": true,
         "due_date": "2024-09-15T18:17:00",
         "id": "roman-new",

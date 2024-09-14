@@ -30,6 +30,16 @@
         "username": "evan"
     },
     {
+        "accepted": false,
+        "assignment_id": "squared_numbers",
+        "id": "a3f3c2ff-d7b4-41f6-ba4f-934c77f1ccbe",
+        "passed": false,
+        "submission_time": "2024-09-14T11:27:42",
+        "tests_passed": 0,
+        "tests_total": 2,
+        "username": "evan"
+    },
+    {
         "accepted": true,
         "assignment_id": "gdghhefereg",
         "id": "84cb0ce4-b4b7-4484-85e4-c80bba542521",

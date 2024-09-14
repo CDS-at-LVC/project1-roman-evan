@@ -7,6 +7,7 @@ StudentFrame::StudentFrame(const wxString& title, User studentUser)
 
 	wxPanel* panel = new wxPanel(this);
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+	Bind(wxEVT_CLOSE_WINDOW, &StudentFrame::onClose, this);
 
 	//Bind(wxEVT_CLOSE_WINDOW, &StudentFrame::onClose, this);
 
@@ -180,6 +181,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	// For now, we'll just create a submission object
 
 	// Create a new submission object
+	const auto& files = selectedAssignment.getDataFiles();
 
 
 	// Update or add the submission to the submissionMap
@@ -198,6 +200,20 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	if (compileResult != 0)
 	{
 		wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
+
+		Submission newSubmission(
+			selectedAssignment.get_assignment_id(),
+			GenerateGUID(),
+			currentUser.get_username(),  // TODO: Replace with actual username
+			isCompiled,  // accepted
+			false,  // passed (to be determined after grading)
+			0,  // tests_passed (to be determined after grading)
+			files.size(),  // total_tests
+			now.FormatISOCombined().ToStdString()  // submission_time
+		);
+		submissionMap[newSubmission.get_id()] = std::move(newSubmission);
+		UpdateSubmissionsList();
+
 		return;
 	}
 
@@ -208,7 +224,6 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	//maybe separate compilation from actual testing
 
 	//loop through assignment tests and run this for each
-	const auto& files = selectedAssignment.getDataFiles();
 	const auto& inputBasePath = "inputs/" + selectedAssignment.get_assignment_id() + "/";
 	const auto& outputBasePath = "outputs/" + selectedAssignment.get_assignment_id() + "/";
 
@@ -232,11 +247,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	);
 	submissionMap[newSubmission.get_id()] = std::move(newSubmission);
 
-	// Update the submissions list box
 	UpdateSubmissionsList();
-
-	// Save the updated submissions to file
-	SaveSubmissions();
 
 	wxMessageBox("Assignment submitted successfully!", "Submission", wxOK | wxICON_INFORMATION);
 }
@@ -343,6 +354,8 @@ void StudentFrame::SaveSubmissions() {
 }
 
 void StudentFrame::onClose(wxCloseEvent& event) {
+	SaveSubmissions();
+
 	if (assignmentMap.empty()) {
 		event.Skip();
 		return;
