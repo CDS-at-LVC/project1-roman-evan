@@ -7,6 +7,7 @@ StudentFrame::StudentFrame(const wxString& title, User studentUser)
 
 	wxPanel* panel = new wxPanel(this);
 	wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+	Bind(wxEVT_CLOSE_WINDOW, &StudentFrame::onClose, this);
 
 	//Bind(wxEVT_CLOSE_WINDOW, &StudentFrame::onClose, this);
 
@@ -28,7 +29,6 @@ StudentFrame::StudentFrame(const wxString& title, User studentUser)
 	m_assignmentsGrid->SetGridLineColour(m_assignmentsGrid->GetBackgroundColour());
 	wxButton* submitAssignment = new wxButton(assignmentPanel, wxID_ANY, "Submit Assignment");
 	wxButton* incompleteAssignmentsBtn = new wxButton(assignmentPanel, wxID_ANY, "Show Incomplete Assignments");
-	//assignmentSizer->Add(m_assignmentsListBox, 1, wxEXPAND | wxALL, 5);
 	assignmentSizer->Add(m_assignmentsGrid, 1, wxEXPAND | wxALL, 5);
 	assignmentSizer->Add(submitAssignment, 0, wxEXPAND | wxALL, 5);
 	assignmentSizer->Add(incompleteAssignmentsBtn, 0, wxEXPAND | wxALL, 5);
@@ -59,9 +59,7 @@ StudentFrame::StudentFrame(const wxString& title, User studentUser)
 	submissionPanel->SetSizer(submissionSizer);
 
 	load_assignments();
-	get_keys(assignmentMap, studentAssignments);
 	load_submissions();
-	get_keys(submissionMap, studentSubmissions);
 
 
 	// Add tabs to notebook
@@ -94,8 +92,10 @@ void StudentFrame::load_assignments() {
 	file >> assignments;
 
 	for (const auto& assignment : assignments) {
-		auto new_assignment = assignment.get<Assignment>();
-		assignmentMap[new_assignment.get_assignment_id()] = std::move(new_assignment);
+		if (assignment["active"]) {
+			auto new_assignment = assignment.get<Assignment>();
+			assignmentMap[new_assignment.get_assignment_id()] = std::move(new_assignment);
+		}
 	}
 
 	file.close();
@@ -139,26 +139,7 @@ void StudentFrame::load_submissions() {
 
 	file.close();
 
-	if (m_submissionsGrid) {
-		m_submissionsGrid->ClearGrid();
-		if (m_submissionsGrid->GetNumberRows() > 0) {
-			m_submissionsGrid->DeleteRows(0, m_submissionsGrid->GetNumberRows());
-		}
-		m_submissionsGrid->AppendRows(submissionMap.size());
-
-		int row = 0;
-		for (const auto& pair : submissionMap) {
-			const Submission& submission = pair.second;
-			m_submissionsGrid->SetCellValue(row, 0, submission.get_assignment_id());
-			m_submissionsGrid->SetCellValue(row, 1, submission.get_accepted() ? "Yes" : "No");
-			m_submissionsGrid->SetCellValue(row, 2, submission.get_passed() ? "Yes" : "No");
-			m_submissionsGrid->SetCellValue(row, 3, std::to_string(submission.get_tests_passed()));
-			m_submissionsGrid->SetCellValue(row, 4, std::to_string(submission.get_total_tests()));
-			m_submissionsGrid->SetCellValue(row, 5, submission.get_submission_time());
-			row++;
-		}
-		m_submissionsGrid->AutoSize();
-	}
+	UpdateSubmissionsList();
 }
 
 void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
@@ -171,7 +152,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 
 	// Get all items from the selected row
 	wxString selectedAssignmentName = m_assignmentsGrid->GetCellValue(selectedRow, 0);
-	Assignment& selectedAssignment = assignmentMap[selectedAssignmentName.ToStdString()];
+	const Assignment& selectedAssignment = assignmentMap[selectedAssignmentName.ToStdString()];
 
 	// Check if the assignment is past due
 	wxDateTime now = wxDateTime::Now();
@@ -200,6 +181,7 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	// For now, we'll just create a submission object
 
 	// Create a new submission object
+	const auto& files = selectedAssignment.getDataFiles();
 
 
 	// Update or add the submission to the submissionMap
@@ -218,6 +200,20 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	if (compileResult != 0)
 	{
 		wxMessageBox("Compilation failed!", "Error", wxOK | wxICON_ERROR);
+
+		Submission newSubmission(
+			selectedAssignment.get_assignment_id(),
+			GenerateGUID(),
+			currentUser.get_username(),  // TODO: Replace with actual username
+			isCompiled,  // accepted
+			false,  // passed (to be determined after grading)
+			0,  // tests_passed (to be determined after grading)
+			files.size(),  // total_tests
+			now.FormatISOCombined().ToStdString()  // submission_time
+		);
+		submissionMap[newSubmission.get_id()] = std::move(newSubmission);
+		UpdateSubmissionsList();
+
 		return;
 	}
 
@@ -228,13 +224,11 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 	//maybe separate compilation from actual testing
 
 	//loop through assignment tests and run this for each
-	const auto& inputs = selectedAssignment.get_inputs();
-	const auto& outputs = selectedAssignment.get_outputs();
 	const auto& inputBasePath = "inputs/" + selectedAssignment.get_assignment_id() + "/";
 	const auto& outputBasePath = "outputs/" + selectedAssignment.get_assignment_id() + "/";
 
-	for (int i = 0; i < inputs.size(); ++i) {
-		if (TestExecutable(outputFile, inputBasePath + inputs[i], outputBasePath + outputs[i]))
+	for (const auto& filesPair : files) {
+		if (TestExecutable(outputFile, inputBasePath + filesPair.first, outputBasePath + filesPair.second))
 			++testsPassed;
 	}
 
@@ -246,18 +240,14 @@ void StudentFrame::onSubmitAssignment(wxCommandEvent& event) {
 		GenerateGUID(),
 		currentUser.get_username(),  // TODO: Replace with actual username
 		isCompiled,  // accepted
-		testsPassed == inputs.size(),  // passed (to be determined after grading)
+		testsPassed == files.size(),  // passed (to be determined after grading)
 		testsPassed,  // tests_passed (to be determined after grading)
-		inputs.size(),  // total_tests
+		files.size(),  // total_tests
 		now.FormatISOCombined().ToStdString()  // submission_time
 	);
 	submissionMap[newSubmission.get_id()] = std::move(newSubmission);
 
-	// Update the submissions list box
 	UpdateSubmissionsList();
-
-	// Save the updated submissions to file
-	SaveSubmissions();
 
 	wxMessageBox("Assignment submitted successfully!", "Submission", wxOK | wxICON_INFORMATION);
 }
@@ -364,6 +354,8 @@ void StudentFrame::SaveSubmissions() {
 }
 
 void StudentFrame::onClose(wxCloseEvent& event) {
+	SaveSubmissions();
+
 	if (assignmentMap.empty()) {
 		event.Skip();
 		return;
@@ -406,11 +398,15 @@ void StudentFrame::onGetGradeReport(wxCommandEvent& event) {
 }
 
 void StudentFrame::onGetIncompleteAssignments(wxCommandEvent& event) {
-	std::vector<wxString> incompleteAssignments;
+	std::unordered_set<wxString> incompleteAssignments;
 
 	for (const auto& pair : assignmentMap) {
-		if (submissionMap.find(pair.first) == submissionMap.end()) {
-			incompleteAssignments.push_back(pair.first);
+		incompleteAssignments.insert(pair.first);
+	}
+
+	for (const auto& pair : submissionMap) {
+		if (pair.second.get_passed()) {
+			incompleteAssignments.erase(pair.second.get_assignment_id());
 		}
 	}
 

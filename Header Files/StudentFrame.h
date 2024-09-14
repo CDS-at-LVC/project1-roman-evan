@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 #include <vector>
+#include <unordered_set>
 #include <wx/datectrl.h>
 #include <wx/aui/auibook.h>
 #include <filesystem>
@@ -37,10 +38,6 @@ public:
 
 private:
 	User currentUser;
-	//wxListBox* m_submittedListBox;
-	//wxListBox* m_assignmentsListBox;
-	wxArrayString studentAssignments;
-	wxArrayString studentSubmissions;
 	wxGrid* m_assignmentsGrid;
 	wxGrid* m_submissionsGrid;
 	std::unordered_map<wxString, Assignment> assignmentMap;

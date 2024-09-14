@@ -1,13 +1,13 @@
 [
   {
     "accepted": true,
-    "assignment_id": "unique_id",
-    "id": "636c7d94-4d0a-4bcc-874b-a5a09a707a4b",
-    "passed": true,
-    "submission_time": "01/01/2024",
-    "tests_passed": 7,
-    "tests_total": 7,
-    "username": "username"
+    "assignment_id": "new-assignment",
+    "id": "31605c49-b617-4bec-a1c8-4d4fde368606",
+    "passed": false,
+    "submission_time": "2024-09-13T11:57:07",
+    "tests_passed": 2,
+    "tests_total": 2,
+    "username": "evan"
   },
   {
     "accepted": true,
@@ -22,9 +22,39 @@
   {
     "accepted": true,
     "assignment_id": "new-assignment",
-    "id": "31605c49-b617-4bec-a1c8-4d4fde368606",
+    "id": "cb1deac1-b1a5-41d5-9942-cd466933094b",
+    "passed": true,
+    "submission_time": "2024-09-13T18:01:06",
+    "tests_passed": 2,
+    "tests_total": 2,
+    "username": "evan"
+  },
+  {
+    "accepted": false,
+    "assignment_id": "squared_numbers",
+    "id": "a3f3c2ff-d7b4-41f6-ba4f-934c77f1ccbe",
     "passed": false,
-    "submission_time": "2024-09-13T11:57:07",
+    "submission_time": "2024-09-14T11:27:42",
+    "tests_passed": 0,
+    "tests_total": 2,
+    "username": "evan"
+  },
+  {
+    "accepted": true,
+    "assignment_id": "gdghhefereg",
+    "id": "84cb0ce4-b4b7-4484-85e4-c80bba542521",
+    "passed": true,
+    "submission_time": "2024-09-13T18:21:38",
+    "tests_passed": 4,
+    "tests_total": 4,
+    "username": "evan"
+  },
+  {
+    "accepted": true,
+    "assignment_id": "squared_numbers",
+    "id": "bda455b9-64ee-4225-8adc-d8e0fd8209ba",
+    "passed": true,
+    "submission_time": "2024-09-14T10:08:30",
     "tests_passed": 2,
     "tests_total": 2,
     "username": "evan"
