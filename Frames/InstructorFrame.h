@@ -11,6 +11,7 @@
 #include <iostream>
 #include <wx/grid.h>
 #include "../Models/User.h"
+#include "../Models/Submission.h"
 #include "../Models/Assignment.h"
 #include "../Util/Util.h"
 #include "AddAssignmentFrame.h"
@@ -24,16 +25,12 @@ public:
 
 private:
     wxGrid* m_assignmentsGrid;
-
-    wxListBox* m_studentsListBox;
-    wxListBox* m_assignmentsListBox;
-    wxArrayString studentUsernames;
-    wxArrayString assignmentsArray;
     std::unordered_map<wxString, User> studentsMap;
     std::unordered_map<wxString, Assignment> assignmentsMap;
 
     void load_students();
     void load_assignments();
+    void load_submissions(std::vector<Submission>& submissions);
 
     void OnAddAssignment(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
@@ -41,5 +38,5 @@ private:
     void UpdateAssignmentssList();
     void OnDeleteAssignment(wxCommandEvent& event);
 
-    void OnGetStudentReport(wxCommandEvent& event);
+    void OnGetAssignmentReport(wxCommandEvent& event);
 };

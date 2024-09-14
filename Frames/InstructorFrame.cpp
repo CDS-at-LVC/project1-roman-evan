@@ -11,15 +11,6 @@ InstructorFrame::InstructorFrame(const wxString& title)
     // Create notebook (tabbed interface)
     wxNotebook* notebook = new wxNotebook(panel, wxID_ANY);
 
-    // Create first tab for students
-    wxPanel* studentsPanel = new wxPanel(notebook);
-    wxBoxSizer* studentsSizer = new wxBoxSizer(wxVERTICAL);
-    m_studentsListBox = new wxListBox(studentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, studentUsernames, wxLB_SINGLE | wxBORDER_SIMPLE);
-    wxButton* refreshBtn = new wxButton(studentsPanel, wxID_ANY, "Get Student Report");
-    studentsSizer->Add(m_studentsListBox, 1, wxEXPAND | wxALL, 5);
-    studentsSizer->Add(refreshBtn, 0, wxEXPAND | wxALL, 5);
-    studentsPanel->SetSizer(studentsSizer);
-
     // Create second tab for assignments
     wxPanel* assignmentsPanel = new wxPanel(notebook);
     wxBoxSizer* assignmentsSizer = new wxBoxSizer(wxVERTICAL);
@@ -33,17 +24,16 @@ InstructorFrame::InstructorFrame(const wxString& title)
     m_assignmentsGrid->SetSelectionMode(wxGrid::wxGridSelectRows);
     m_assignmentsGrid->HideRowLabels();
     m_assignmentsGrid->SetGridLineColour(m_assignmentsGrid->GetBackgroundColour());
-    //m_assignmentsListBox = new wxListBox(assignmentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, assignmentsArray, wxLB_SINGLE | wxBORDER_SIMPLE);
     wxButton* addAssignmentBtn = new wxButton(assignmentsPanel, wxID_ANY, "Add Assignment");
     wxButton* removeAssignmentBtn = new wxButton(assignmentsPanel, wxID_ANY, "Delete Assignment");
+    wxButton* assignmentReportBtn = new wxButton(assignmentsPanel, wxID_ANY, "Get Assignment Report");
     assignmentsSizer->Add(m_assignmentsGrid, 1, wxEXPAND | wxALL, 5);
-    //assignmentsSizer->Add(m_assignmentsListBox, 1, wxEXPAND | wxALL, 5);
     assignmentsSizer->Add(addAssignmentBtn, 0, wxEXPAND | wxALL, 5);
     assignmentsSizer->Add(removeAssignmentBtn, 0, wxEXPAND | wxALL, 5);
+    assignmentsSizer->Add(assignmentReportBtn, 0, wxEXPAND | wxALL, 5);
     assignmentsPanel->SetSizer(assignmentsSizer);
 
     // Add tabs to notebook
-    notebook->AddPage(studentsPanel, "Students");
     notebook->AddPage(assignmentsPanel, "Assignments");
 
     // Add notebook to main sizer
@@ -52,15 +42,12 @@ InstructorFrame::InstructorFrame(const wxString& title)
     panel->SetSizer(mainSizer);
 
     load_students();
-    get_keys(studentsMap, studentUsernames);
-
     load_assignments();
-    get_keys(assignmentsMap, assignmentsArray);
 
     // Bind event handlers
-    //refreshBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnRefresh, this);
     addAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnAddAssignment, this);
     removeAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnDeleteAssignment, this);
+    assignmentReportBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnGetAssignmentReport, this);
 }
 
 void InstructorFrame::load_students()
@@ -157,9 +144,6 @@ void InstructorFrame::OnAddAssignment(wxCommandEvent& event) {
 
         assignmentsMap[assignmentID] = Assignment(assignmentID, dueDate, inputFiles, outputFiles, true);
 
-        assignmentsArray.Add(assignmentID);
-        //m_assignmentsListBox->Set(assignmentsArray);
-
         UpdateAssignmentssList();
     }
 
@@ -204,10 +188,91 @@ void InstructorFrame::OnGridSelect(wxGridEvent& event)
     event.Skip();
 }
 
-void InstructorFrame::OnGetStudentReport(wxCommandEvent& event)
+void InstructorFrame::load_submissions(std::vector<Submission>& submissions)
 {
+    std::ifstream file("jsonSchemas/submissions-schema.json");
+    if (!file.is_open()) {
+        wxMessageBox("Failed to open submission-schema.json", "Error", wxOK | wxICON_ERROR);
+        return;
+    }
 
+    json submissionsJson;
+    file >> submissionsJson;
+
+    for (const auto& submissionJson : submissionsJson) {
+        submissions.push_back(submissionJson.get<Submission>());
+    }
+
+    file.close();
 }
+
+void InstructorFrame::OnGetAssignmentReport(wxCommandEvent& event)
+{
+    // Get the selected assignment
+    int selectedRow = m_assignmentsGrid->GetGridCursorRow();
+    if (selectedRow == wxNOT_FOUND) {
+        wxMessageBox("Please select an assignment to generate a report.", "Error", wxOK | wxICON_ERROR);
+        return;
+    }
+    wxString selectedAssignmentId = m_assignmentsGrid->GetCellValue(selectedRow, 0);
+
+    // Load submissions
+    std::vector<Submission> submissions;
+    load_submissions(submissions);
+
+    // Create a report dialog
+    wxDialog* reportDialog = new wxDialog(this, wxID_ANY, "Assignment Report: " + selectedAssignmentId, wxDefaultPosition, wxSize(600, 400));
+    wxTextCtrl* reportText = new wxTextCtrl(reportDialog, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_READONLY);
+
+    wxString report;
+    report += "Assignment Report for: " + selectedAssignmentId + "\n\n";
+
+    // Go through all students
+    for (const auto& student : studentsMap) {
+        wxString studentUsername = student.first;
+        report += "Student: " + studentUsername + "\n";
+
+        // Find the latest submission for this student and assignment
+        const Submission* latestSubmission = nullptr;
+        for (const auto& submission : submissions) {
+            if (submission.get_assignment_id() == selectedAssignmentId.ToStdString() &&
+                submission.get_username() == studentUsername.ToStdString()) {
+                if (!latestSubmission || submission.get_submission_time() > latestSubmission->get_submission_time()) {
+                    latestSubmission = &submission;
+                }
+            }
+        }
+
+        if (latestSubmission) {
+            report += "Status: Submitted\n";
+            report += "Submission Time: " + wxString(latestSubmission->get_submission_time()) + "\n";
+            report += "Passed: " + wxString(latestSubmission->get_passed() ? "Yes" : "No") + "\n";
+            report += "Tests Passed: " + wxString::Format("%d/%d", latestSubmission->get_tests_passed(), latestSubmission->get_total_tests()) + "\n";
+
+            // Calculate grade (assuming grade is based on percentage of tests passed)
+            double grade = (static_cast<double>(latestSubmission->get_tests_passed()) / latestSubmission->get_total_tests()) * 100;
+            report += wxString::Format("Grade: %.2f%%\n", grade);
+        }
+        else {
+            report += "Status: Not Submitted\n";
+            report += "Grade: 0%\n";
+        }
+
+        report += "\n";  // Add a blank line between students
+    }
+
+    reportText->SetValue(report);
+
+    // Layout
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(reportText, 1, wxEXPAND | wxALL, 10);
+    reportDialog->SetSizer(sizer);
+
+    // Show the dialog
+    reportDialog->ShowModal();
+    reportDialog->Destroy();
+}
+
 
 void InstructorFrame::UpdateAssignmentssList() {
     if (m_assignmentsGrid->GetNumberRows() > 0) {
@@ -229,7 +294,6 @@ void InstructorFrame::UpdateAssignmentssList() {
     // Optionally, adjust the columns to fit the data
     m_assignmentsGrid->AutoSizeColumns();
     m_assignmentsGrid->AutoSizeRows();
-    //m_submittedListBox->Set(studentSubmissions);
 }
 
 void InstructorFrame::OnDeleteAssignment(wxCommandEvent& event)
