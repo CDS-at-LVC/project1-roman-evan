@@ -134,7 +134,6 @@
     <ClCompile Include="Models\Assignment.cpp" />
     <ClCompile Include="Frames\InstructorFrame.cpp" />
     <ClCompile Include="Frames\LoginFrame.cpp" />
-    <ClCompile Include="Models\TestExecutable.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Frames\AddAssignmentFrame.cpp" />
     <ClCompile Include="Models\Submission.cpp" />
@@ -177,6 +176,7 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\wxWidgets.3.2.2.1\build\wxWidgets.targets" Condition="Exists('packages\wxWidgets.3.2.2.1\build\wxWidgets.targets')" />
     <Import Project="packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets" Condition="Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" />
+    <Import Project="packages\boost.1.86.0\build\boost.targets" Condition="Exists('packages\boost.1.86.0\build\boost.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -184,5 +184,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\wxWidgets.3.2.2.1\build\wxWidgets.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\wxWidgets.3.2.2.1\build\wxWidgets.targets'))" />
     <Error Condition="!Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets'))" />
+    <Error Condition="!Exists('packages\boost.1.86.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.86.0\build\boost.targets'))" />
   </Target>
 </Project>

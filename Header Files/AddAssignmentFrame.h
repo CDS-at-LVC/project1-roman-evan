@@ -16,6 +16,7 @@ public:
     std::string GetDueDate() const;
     std::vector<std::string> GetInputFiles() const;
     std::vector<std::string> GetOutputFiles() const;
+    bool GetDeleted() const;
 
 private:
     void OnSubmit(wxCommandEvent& event);

@@ -1,20 +1,32 @@
 [
   {
-    "assignment_id": "unique_id",
-    "username": "username",
     "accepted": true,
+    "assignment_id": "unique_id",
+    "id": "636c7d94-4d0a-4bcc-874b-a5a09a707a4b",
     "passed": true,
+    "submission_time": "01/01/2024",
     "tests_passed": 7,
     "tests_total": 7,
-    "submission_time": "01/01/2024"
+    "username": "username"
   },
   {
-    "assignment_id": "Test01",
-    "username": "evan",
     "accepted": true,
+    "assignment_id": "new-assignment",
+    "id": "1c4dab63-e433-4a7e-ac64-028bd936e79a",
     "passed": true,
-    "tests_passed": 7,
-    "tests_total": 7,
-    "submission_time": "01/01/2024"
+    "submission_time": "2024-09-13T12:46:14",
+    "tests_passed": 2,
+    "tests_total": 2,
+    "username": "evan"
+  },
+  {
+    "accepted": true,
+    "assignment_id": "new-assignment",
+    "id": "31605c49-b617-4bec-a1c8-4d4fde368606",
+    "passed": false,
+    "submission_time": "2024-09-13T11:57:07",
+    "tests_passed": 2,
+    "tests_total": 2,
+    "username": "evan"
   }
 ]

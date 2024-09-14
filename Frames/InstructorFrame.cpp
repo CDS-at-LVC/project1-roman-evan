@@ -21,9 +21,7 @@ InstructorFrame::InstructorFrame(const wxString& title)
     wxPanel* studentsPanel = new wxPanel(notebook);
     wxBoxSizer* studentsSizer = new wxBoxSizer(wxVERTICAL);
     m_studentsListBox = new wxListBox(studentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, studentUsernames, wxLB_SINGLE | wxBORDER_SIMPLE);
-    wxButton* studentReportBtn = new wxButton(studentsPanel, wxID_ANY, "Get Student Report");
     studentsSizer->Add(m_studentsListBox, 1, wxEXPAND | wxALL, 5);
-    studentsSizer->Add(studentReportBtn, 0, wxEXPAND | wxALL, 5);
     studentsPanel->SetSizer(studentsSizer);
 
     // Create second tab for assignments
@@ -32,9 +30,11 @@ InstructorFrame::InstructorFrame(const wxString& title)
     m_assignmentsListBox = new wxListBox(assignmentsPanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, assignmentsArray, wxLB_SINGLE | wxBORDER_SIMPLE);
     wxButton* addAssignmentBtn = new wxButton(assignmentsPanel, wxID_ANY, "Add Assignment");
     wxButton* deleteAssignmentBtn = new wxButton(assignmentsPanel, wxID_ANY, "Remove Assignment");
+    wxButton* assignmentReportBtn = new wxButton(assignmentsPanel, wxID_ANY, "Get Assignment Report");
     assignmentsSizer->Add(m_assignmentsListBox, 1, wxEXPAND | wxALL, 5);
     assignmentsSizer->Add(addAssignmentBtn, 0, wxEXPAND | wxALL, 5);
     assignmentsSizer->Add(deleteAssignmentBtn, 0, wxEXPAND | wxALL, 5);
+    assignmentsSizer->Add(assignmentReportBtn, 0, wxEXPAND | wxALL, 5);
     assignmentsPanel->SetSizer(assignmentsSizer);
 
     // Add tabs to notebook
@@ -47,7 +47,7 @@ InstructorFrame::InstructorFrame(const wxString& title)
     panel->SetSizer(mainSizer);
 
     // Bind event handlers
-    studentReportBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnGetStudentReport, this);
+    assignmentReportBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnGetAssignmentReport, this);
     addAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnAddAssignment, this);
     deleteAssignmentBtn->Bind(wxEVT_BUTTON, &InstructorFrame::OnDeleteAssignment, this);
 }
@@ -77,20 +77,30 @@ void InstructorFrame::load_students()
 void InstructorFrame::load_assignments()
 {
     std::ifstream file("jsonSchemas/assignment-schema.json");
-
     if (!file.is_open()) {
-        wxMessageBox("Failed to open users-schema.json", "Error ", wxOK | wxICON_ERROR);
+        wxMessageBox("Failed to open assignment-schema.json", "Error ", wxOK | wxICON_ERROR);
         return;
     }
 
     json assignments;
     file >> assignments;
 
+    assignmentsMap.clear();
+    assignmentsArray.Clear();
+
     for (const auto& assignment : assignments) {
         auto new_assignment = assignment.get<Assignment>();
+
+        // Only add non-deleted assignments to the array and listbox
+        if (!new_assignment.is_deleted()) {
+            assignmentsArray.Add(new_assignment.get_assignment_id());
+        }
+
+        // Move the assignment into the map after we're done using it
         assignmentsMap[new_assignment.get_assignment_id()] = std::move(new_assignment);
     }
 
+    m_assignmentsListBox->Set(assignmentsArray);
     file.close();
 }
 
@@ -105,6 +115,7 @@ void InstructorFrame::OnAddAssignment(wxCommandEvent& event) {
         std::string dueDate = assignmentFrame->GetDueDate();
         std::vector<std::string> inputFiles = assignmentFrame->GetInputFiles();
         std::vector<std::string> outputFiles = assignmentFrame->GetOutputFiles();
+        bool deleted = false;
 
         std::filesystem::path inputDestination = std::filesystem::current_path() / "inputs" / assignmentID;
         for (auto& input : inputFiles) {
@@ -142,7 +153,7 @@ void InstructorFrame::OnAddAssignment(wxCommandEvent& event) {
 
         }
 
-        assignmentsMap[assignmentID] = Assignment(assignmentID, dueDate, inputFiles, outputFiles);
+        assignmentsMap[assignmentID] = Assignment(assignmentID, dueDate, inputFiles, outputFiles, deleted);
 
         assignmentsArray.Add(assignmentID);
         m_assignmentsListBox->Set(assignmentsArray);
@@ -197,61 +208,80 @@ void InstructorFrame::load_submissions()
     submissionsMap.clear();
 
     for (const auto& submission : submissions) {
-        std::string username = submission["username"];
-        std::string assignment_id = submission["assignment_id"];
-
-        submissionsMap[username][assignment_id] = submission;
+        auto new_submission = submission.get<Submission>();
+        submissionsMap[new_submission.get_id()] = std::move(new_submission);
     }
 
     file.close();
 }
 
-void InstructorFrame::OnGetStudentReport(wxCommandEvent& event)
+void InstructorFrame::OnGetAssignmentReport(wxCommandEvent& event)
 {
-    int selectedIndex = m_studentsListBox->GetSelection();
+    int selectedIndex = m_assignmentsListBox->GetSelection();
     if (selectedIndex == wxNOT_FOUND)
     {
-        wxMessageBox("Please select a student.", "No Student Selected", wxOK | wxICON_INFORMATION);
+        wxMessageBox("Please select an assignment.", "No Assignment Selected", wxOK | wxICON_INFORMATION);
         return;
     }
 
-    wxString selectedStudent = m_studentsListBox->GetString(selectedIndex);
+    wxString selectedAssignment = m_assignmentsListBox->GetString(selectedIndex);
 
     // Load the latest submission data
     load_submissions();
 
-    auto studentSubmissions = submissionsMap.find(selectedStudent.ToStdString());
-    if (studentSubmissions == submissionsMap.end() || studentSubmissions->second.empty())
-    {
-        wxMessageBox("No submissions found for this student.", "No Data", wxOK | wxICON_INFORMATION);
-        return;
-    }
-
     std::stringstream report;
-    report << "Grade Report for " << selectedStudent << "\n\n";
+    report << "Assignment Report for " << selectedAssignment << "\n\n";
 
-    for (const auto& [assignment_id, submission] : studentSubmissions->second)
+    int totalSubmissions = 0;
+    int totalAttempts = 0;
+    int totalPassed = 0;
+    std::set<std::string> studentsAttempted;
+
+    for (const auto& [submission_id, submission] : submissionsMap)
     {
-        report << "Assignment: " << assignment_id << "\n";
-        report << "Submission Time: " << submission["submission_time"].get<std::string>() << "\n";
-        report << "Accepted: " << (submission["accepted"].get<bool>() ? "Yes" : "No") << "\n";
-        report << "Passed: " << (submission["passed"].get<bool>() ? "Yes" : "No") << "\n";
-        report << "Tests Passed: " << submission["tests_passed"].get<int>() << " / " << submission["tests_total"].get<int>() << "\n";
+        if (submission.get_assignment_id() == selectedAssignment.ToStdString())
+        {
+            std::string username = submission.get_username();
+            studentsAttempted.insert(username);
+            totalAttempts++;
 
-        double grade = (static_cast<double>(submission["tests_passed"].get<int>()) / submission["tests_total"].get<int>()) * 100;
-        report << "Grade: " << std::fixed << std::setprecision(2) << grade << "%\n\n";
+            if (submission.get_accepted())
+            {
+                totalSubmissions++;
+                if (submission.get_passed())
+                {
+                    totalPassed++;
+                }
+            }
+
+            report << "Student: " << username << "\n";
+            report << "  Status: " << (submission.get_accepted() ? "Submitted" : "Attempted") << "\n";
+            report << "  Passed: " << (submission.get_passed() ? "Yes" : "No") << "\n";
+            report << "  Tests Passed: " << submission.get_tests_passed() << " / " << submission.get_total_tests() << "\n";
+            report << "  Last Submission Time: " << submission.get_submission_time() << "\n\n";
+        }
     }
+
+    int totalStudents = studentsMap.size();
+    int studentsNotAttempted = totalStudents - studentsAttempted.size();
+
+    report << "Summary:\n";
+    report << "Total Students: " << totalStudents << "\n";
+    report << "Students Attempted: " << studentsAttempted.size() << "\n";
+    report << "Students Not Attempted: " << studentsNotAttempted << "\n";
+    report << "Total Submissions: " << totalSubmissions << "\n";
+    report << "Total Attempts: " << totalAttempts << "\n";
+    report << "Submissions Passed: " << totalPassed << "\n";
 
     // Display the report in a scrollable text dialog
-    wxTextEntryDialog dialog(this, "Student Report", "Grade Report",
+    wxTextEntryDialog dialog(this, "Assignment Report", "Assignment Report",
         report.str(),
         wxOK | wxTE_MULTILINE | wxTE_READONLY | wxVSCROLL);
-    dialog.SetSize(400, 300);  // Set an appropriate size for the dialog
+    dialog.SetSize(500, 400);  // Set an appropriate size for the dialog
     dialog.ShowModal();
 }
 
 void InstructorFrame::OnDeleteAssignment(wxCommandEvent& event) {
-    // Gets assignment from list box
     int selectedIndex = m_assignmentsListBox->GetSelection();
     if (selectedIndex == wxNOT_FOUND)
     {
@@ -261,35 +291,20 @@ void InstructorFrame::OnDeleteAssignment(wxCommandEvent& event) {
 
     wxString selectedAssignmentId = m_assignmentsListBox->GetString(selectedIndex);
 
-    // Confirmation for deletion
     wxMessageDialog confirmDialog(this,
         wxString::Format("Are you sure you want to delete the assignment '%s'?", selectedAssignmentId),
         "Confirm Deletion",
         wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
 
-
     if (confirmDialog.ShowModal() == wxID_YES)
     {
-        // Remove assignment from the map
         auto it = assignmentsMap.find(selectedAssignmentId.ToStdString());
         if (it != assignmentsMap.end())
         {
-            // Delete input and output files
-            std::filesystem::path inputPath = std::filesystem::current_path() / "inputs" / selectedAssignmentId.ToStdString();
-            std::filesystem::path outputPath = std::filesystem::current_path() / "outputs" / selectedAssignmentId.ToStdString();
+            // Soft delete: Mark the assignment as deleted
+            it->second.set_deleted(true);
 
-            try
-            {
-                std::filesystem::remove_all(inputPath);
-                std::filesystem::remove_all(outputPath);
-            }
-            catch (const std::filesystem::filesystem_error& e)
-            {
-                wxMessageBox(wxString::Format("Error deleting files: %s", e.what()), "File Deletion Error", wxOK | wxICON_ERROR);
-            }
-
-            // Remove the assignment from the map and update the listbox
-            assignmentsMap.erase(it);
+            // Update the listbox to reflect the deletion
             assignmentsArray.Remove(selectedAssignmentId);
             m_assignmentsListBox->Set(assignmentsArray);
 
@@ -303,9 +318,9 @@ void InstructorFrame::OnDeleteAssignment(wxCommandEvent& event) {
             std::ofstream file("jsonSchemas/assignment-schema.json");
             if (file.is_open())
             {
-                file << j_assignments.dump(4);
+                file << j_assignments.dump(4);  // Dump the JSON with 4-space indentation
                 file.close();
-                wxMessageBox("Assignment deleted successfully.", "Success", wxOK | wxICON_INFORMATION);
+                wxMessageBox("Assignment marked as deleted successfully.", "Success", wxOK | wxICON_INFORMATION);
             }
             else
             {
