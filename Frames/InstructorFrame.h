@@ -9,6 +9,7 @@
 #include <wx/aui/auibook.h>
 #include <filesystem>
 #include <iostream>
+#include <wx/grid.h>
 #include "../Models/User.h"
 #include "../Models/Assignment.h"
 #include "../Util/Util.h"
@@ -22,6 +23,8 @@ public:
     InstructorFrame(const wxString& title);
 
 private:
+    wxGrid* m_assignmentsGrid;
+
     wxListBox* m_studentsListBox;
     wxListBox* m_assignmentsListBox;
     wxArrayString studentUsernames;
@@ -34,6 +37,9 @@ private:
 
     void OnAddAssignment(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
+    void OnGridSelect(wxGridEvent& event);
+    void UpdateAssignmentssList();
+    void OnDeleteAssignment(wxCommandEvent& event);
 
     void OnGetStudentReport(wxCommandEvent& event);
 };
