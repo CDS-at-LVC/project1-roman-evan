@@ -105,6 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -128,22 +129,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Frames\AddAssignmentFrame.cpp" />
+    <ClCompile Include="Models\Assignment.cpp" />
+    <ClCompile Include="Frames\AdminFrame.cpp" />
+    <ClCompile Include="Frames\LoginFrame.cpp" />
+    <ClCompile Include="Frames\InstructorFrame.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Models\User.cpp" />
+    <ClCompile Include="Models\Submission.cpp" />
+    <ClCompile Include="Frames\StudentFrame.cpp" />
+    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="project-test.rc" />
+    <ResourceCompile Include="project1-roman-evan.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="project-test.ico" />
-    <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="jsonSchemas\assignment-schema.json" />
+    <None Include="jsonSchemas\submissions-schema.json" />
+    <None Include="jsonSchemas\users-schema.json" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Frames\AddAssignmentFrame.h" />
+    <ClInclude Include="Models\Assignment.h" />
+    <ClInclude Include="Frames\AdminFrame.h" />
+    <ClInclude Include="Frames\LoginFrame.h" />
+    <ClInclude Include="Frames\InstructorFrame.h" />
+    <ClInclude Include="Frames\SubmitFrame.h" />
+    <ClInclude Include="Models\User.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Models\Submission.h" />
+    <ClInclude Include="Frames\StudentFrame.h" />
+    <ClInclude Include="Util\Util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="new-icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="packages\wxWidgets.3.2.2.1\build\wxWidgets.targets" Condition="Exists('packages\wxWidgets.3.2.2.1\build\wxWidgets.targets')" />
     <Import Project="packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets" Condition="Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" />
+    <Import Project="packages\boost.1.86.0\build\boost.targets" Condition="Exists('packages\boost.1.86.0\build\boost.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -151,5 +177,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\wxWidgets.3.2.2.1\build\wxWidgets.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\wxWidgets.3.2.2.1\build\wxWidgets.targets'))" />
     <Error Condition="!Exists('packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\nlohmann.json.3.11.2\build\native\nlohmann.json.targets'))" />
+    <Error Condition="!Exists('packages\boost.1.86.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\boost.1.86.0\build\boost.targets'))" />
   </Target>
 </Project>
