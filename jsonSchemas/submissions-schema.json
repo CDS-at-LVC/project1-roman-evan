@@ -1,0 +1,42 @@
+[
+    {
+        "accepted": true,
+        "assignment_id": "squared_numbers",
+        "id": "1933512e-ed2c-42b0-a03e-5dd024c3cc3a",
+        "passed": true,
+        "submission_time": "2024-09-16T10:06:38",
+        "tests_passed": 2,
+        "tests_total": 2,
+        "username": "roman1"
+    },
+    {
+        "accepted": true,
+        "assignment_id": "squared_numbers",
+        "id": "a13d5f6d-ae57-45c8-a362-8cce06506402",
+        "passed": true,
+        "submission_time": "2024-09-16T10:09:31",
+        "tests_passed": 2,
+        "tests_total": 2,
+        "username": "evan"
+    },
+    {
+        "accepted": true,
+        "assignment_id": "squared_numbers",
+        "id": "d213622d-d057-42ce-b171-0c69f96f64cb",
+        "passed": true,
+        "submission_time": "2024-09-16T10:09:38",
+        "tests_passed": 2,
+        "tests_total": 2,
+        "username": "evan"
+    },
+    {
+        "accepted": true,
+        "assignment_id": "squared_numbers",
+        "id": "f8058512-cd67-4754-b9bd-d0efe4632511",
+        "passed": true,
+        "submission_time": "2024-09-16T10:10:01",
+        "tests_passed": 2,
+        "tests_total": 2,
+        "username": "roman1"
+    }
+]
