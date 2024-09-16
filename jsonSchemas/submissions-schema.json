@@ -1,62 +1,42 @@
 [
     {
         "accepted": true,
-        "assignment_id": "new-assignment",
-        "id": "31605c49-b617-4bec-a1c8-4d4fde368606",
-        "passed": false,
-        "submission_time": "2024-09-13T11:57:07",
-        "tests_passed": 2,
-        "tests_total": 2,
-        "username": "evan"
-    },
-    {
-        "accepted": true,
-        "assignment_id": "new-assignment",
-        "id": "1c4dab63-e433-4a7e-ac64-028bd936e79a",
-        "passed": true,
-        "submission_time": "2024-09-13T12:46:14",
-        "tests_passed": 2,
-        "tests_total": 2,
-        "username": "evan"
-    },
-    {
-        "accepted": true,
-        "assignment_id": "new-assignment",
-        "id": "cb1deac1-b1a5-41d5-9942-cd466933094b",
-        "passed": true,
-        "submission_time": "2024-09-13T18:01:06",
-        "tests_passed": 2,
-        "tests_total": 2,
-        "username": "evan"
-    },
-    {
-        "accepted": false,
         "assignment_id": "squared_numbers",
-        "id": "a3f3c2ff-d7b4-41f6-ba4f-934c77f1ccbe",
-        "passed": false,
-        "submission_time": "2024-09-14T11:27:42",
-        "tests_passed": 0,
+        "id": "1933512e-ed2c-42b0-a03e-5dd024c3cc3a",
+        "passed": true,
+        "submission_time": "2024-09-16T10:06:38",
+        "tests_passed": 2,
         "tests_total": 2,
-        "username": "evan"
+        "username": "roman1"
     },
     {
         "accepted": true,
-        "assignment_id": "gdghhefereg",
-        "id": "84cb0ce4-b4b7-4484-85e4-c80bba542521",
+        "assignment_id": "squared_numbers",
+        "id": "a13d5f6d-ae57-45c8-a362-8cce06506402",
         "passed": true,
-        "submission_time": "2024-09-13T18:21:38",
-        "tests_passed": 4,
-        "tests_total": 4,
+        "submission_time": "2024-09-16T10:09:31",
+        "tests_passed": 2,
+        "tests_total": 2,
         "username": "evan"
     },
     {
         "accepted": true,
         "assignment_id": "squared_numbers",
-        "id": "bda455b9-64ee-4225-8adc-d8e0fd8209ba",
+        "id": "d213622d-d057-42ce-b171-0c69f96f64cb",
         "passed": true,
-        "submission_time": "2024-09-14T10:08:30",
+        "submission_time": "2024-09-16T10:09:38",
         "tests_passed": 2,
         "tests_total": 2,
         "username": "evan"
+    },
+    {
+        "accepted": true,
+        "assignment_id": "squared_numbers",
+        "id": "f8058512-cd67-4754-b9bd-d0efe4632511",
+        "passed": true,
+        "submission_time": "2024-09-16T10:10:01",
+        "tests_passed": 2,
+        "tests_total": 2,
+        "username": "roman1"
     }
 ]

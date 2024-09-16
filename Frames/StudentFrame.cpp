@@ -130,11 +130,9 @@ void StudentFrame::load_submissions() {
 	json submissions;
 	file >> submissions;
 
-	for (const auto& submission : submissions) {
-		if (submission["username"] == currentUser.get_username()) {
+	for (const auto& submission : submissions) {		
 			auto new_submission = submission.get<Submission>();
 			submissionMap[new_submission.get_id()] = std::move(new_submission);
-		}
 	}
 
 	file.close();
@@ -312,22 +310,22 @@ bool StudentFrame::TestExecutable(const std::string& execName,
 void StudentFrame::UpdateSubmissionsList() {
 	if (m_submissionsGrid->GetNumberRows() > 0) {
 		m_submissionsGrid->DeleteRows(0, m_submissionsGrid->GetNumberRows());
-	}
-
-	// Step 2: Re-add rows based on submissionMap size
-	m_submissionsGrid->AppendRows(submissionMap.size());
+	}	
 
 	// Step 3: Populate the grid with updated data
 	int row = 0;
 	for (const auto& pair : submissionMap) {
-		const Submission& submission = pair.second;
-		m_submissionsGrid->SetCellValue(row, 0, submission.get_assignment_id());
-		m_submissionsGrid->SetCellValue(row, 1, submission.get_accepted() ? "Yes" : "No");
-		m_submissionsGrid->SetCellValue(row, 2, submission.get_passed() ? "Yes" : "No");
-		m_submissionsGrid->SetCellValue(row, 3, std::to_string(submission.get_tests_passed()));
-		m_submissionsGrid->SetCellValue(row, 4, std::to_string(submission.get_total_tests()));
-		m_submissionsGrid->SetCellValue(row, 5, submission.get_submission_time());
-		row++;
+		if (pair.second.get_username() == currentUser.get_username()) {
+			m_submissionsGrid->AppendRows();
+			const Submission& submission = pair.second;
+			m_submissionsGrid->SetCellValue(row, 0, submission.get_assignment_id());
+			m_submissionsGrid->SetCellValue(row, 1, submission.get_accepted() ? "Yes" : "No");
+			m_submissionsGrid->SetCellValue(row, 2, submission.get_passed() ? "Yes" : "No");
+			m_submissionsGrid->SetCellValue(row, 3, std::to_string(submission.get_tests_passed()));
+			m_submissionsGrid->SetCellValue(row, 4, std::to_string(submission.get_total_tests()));
+			m_submissionsGrid->SetCellValue(row, 5, submission.get_submission_time());
+			row++;
+		}
 	}
 
 	// Optionally, adjust the columns to fit the data
